@@ -32,12 +32,11 @@ const refreshQuizzes = async () => {
 }
 
 const deleteQuiz = async (quiz) => {
-  const response = await fetch(`http://localhost:5000/quizzes`, {
+  const response = await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${current_user.value.token}`,
     },
-    body: JSON.stringify({ quiz_id: quiz.id }),
   }).then((response) => response.json())
   console.log(response.message)
   await refreshQuizzes()
@@ -58,23 +57,37 @@ const deleteQuiz = async (quiz) => {
   </div>
   <div v-else>
     <h1>Active Quizzes</h1>
-    <button popovertarget="new-quiz-popover" class="btn btn-secondary my-3">+New Quiz</button>
-    <div v-for="(q, i) in quizzes.filter(quiz => quiz.date_of_quiz < Date.now())" :key="i">
-      {{ q }}
-    </div>
-    <div id="new-quiz-popover" popover>
-      <button class="close-btn btn btn-danger" popovertarget="new-quiz-popover" popovertargetaction="hide">X</button>
-      <NewQuizForm @refresh-quizzes="refreshQuizzes" :quizzes="quizzes" />
-    </div>
-    <hr />
-    <h1>Past Quizzes</h1>
-    <div v-for="(q, i) in quizzes.filter(quiz => !(quiz.date_of_quiz < Date.now()))" :key="i">
+    <button popovertarget="new-quiz-popover" class="btn btn-secondary my-3">
+      <img src="@/assets/add.svg" alt="add" />
+    </button>
+    <div v-for="(q, i) in quizzes.filter(quiz => !(quiz.date_of_quiz > Date.now()))" :key="i">
       <div class="card mt-2">
         <div class="card-body">
           <h5 class="card-title">{{ q.name }}</h5>
           <h6 class="card-subtitle mb-2 text-muted">{{ q.chapter }}</h6>
           <p class="card-text">{{ q.remarks }}</p>
-          <button class="btn btn-danger" @click="() => deleteQuiz(q)">delete</button>
+          <button class="btn btn-danger" @click.prevent.stop="() => deleteQuiz(q)">
+            <img src="@/assets/remove.svg" alt="remove" />
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="new-quiz-popover" popover>
+      <button class="close-btn btn btn-danger" popovertarget="new-quiz-popover" popovertargetaction="hide">
+        <img src="@/assets/close.svg" alt="close" />
+      </button>
+      <NewQuizForm @refresh-quizzes="refreshQuizzes" :quizzes="quizzes" />
+    </div>
+    <hr />
+    <h1>Past Quizzes</h1>
+    <div v-for="(q, i) in quizzes.filter(quiz => quiz.date_of_quiz > Date.now())" :key="i">
+      <div class="card mt-2">
+        <div class="card-body">
+          <h5 class="card-title">{{ q.name }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ q.chapter }}</h6>
+          <p class="card-text">{{ q.remarks }}</p>
+          <button class="btn btn-danger" @click.prevent.stop="() => deleteQuiz(q)"><img src="@assets/remove.svg"
+              alt="delete quiz" />delete</button>
         </div>
       </div>
     </div>
@@ -85,15 +98,15 @@ const deleteQuiz = async (quiz) => {
 #new-quiz-popover {
   height: 80dvh;
   width: 80dvw;
-  border-radius: 16px;
   justify-self: center;
   align-self: center;
   text-align: center;
   padding: 2rem;
   border: none;
-  border-radius: 1.5rem;
+  border-radius: 0.5rem;
   scrollbar-width: thin;
   scroll-behavior: smooth;
+  scrollbar-color: #282828 #000;
   justify-items: center;
 
   .btn-secondary {
@@ -115,5 +128,11 @@ ul {
   position: absolute;
   top: 20px;
   right: 20px;
+}
+
+button.btn {
+  img {
+    width: 1.25rem;
+  }
 }
 </style>

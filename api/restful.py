@@ -173,7 +173,6 @@ class Quizzes(Resource):
     def post(self):
         try:
             quiz = request.get_json()
-            print(quiz)
 
             if subject := db.session.execute(
                 select(Subject).where(Subject.name == quiz["subject"])
@@ -229,12 +228,12 @@ class Quizzes(Resource):
         except Exception as error:
             print(error)
             return {"message": "Unknown error"}, 500
-        
+
     @jwt_required()
-    def delete():
+    def delete(self, quiz_id: int):
         try:
-            quiz = request.get_json()
-            quiz = db.session.execute(select(Quiz).where(Quiz.id == quiz["quiz_id"])).scalar()
+            quiz = db.session.execute(select(Quiz).where(
+                Quiz.id == quiz_id)).scalar()
             db.session.delete(quiz)
             db.session.commit()
             return {"message": "Quiz deleted successfully"}, 200

@@ -70,7 +70,7 @@ const getType = (attr) => attr === 'duration' ? 'number' : 'text';
   <form @submit.prevent.stop="handleSubmit">
     <div v-for="attr in Object.keys(newQuiz)" class="form-floating text-start my-2" :key="attr">
       <!-- if attr is remarks -->
-      <textarea v-model="newQuiz[attr]" v-if="attr === 'remarks'" :id="attr" class="form-control" />
+      <textarea rows="5" cols="30" v-model="newQuiz[attr]" v-if="attr === 'remarks'" :id="attr" class="form-control" />
       <!-- else -->
       <input v-else v-model="newQuiz[attr]" :type="getType(attr)" :id="attr" class="form-control" />
       <label :for="attr">{{ attr }}</label>
@@ -90,7 +90,7 @@ const getType = (attr) => attr === 'duration' ? 'number' : 'text';
           </div>
           <ul>
             <li v-for="(opt, j) in ques.options" :key="j" class="form-floating mt-2">
-              <textarea v-model="opt.statement" :id="`opt-${i}-${j}`" class="form-control" />
+              <textarea rows="5" cols="30" v-model="opt.statement" :id="`opt-${i}-${j}`" class="form-control" />
               <label :for="`opt-${i}-${j}`">{{ j + 1 }}.</label>
             </li>
           </ul>

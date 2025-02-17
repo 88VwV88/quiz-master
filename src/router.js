@@ -1,7 +1,8 @@
-import Home from '@views/HomeView.vue'
-import Login from '@views/LoginView.vue'
-import Quiz from '@views/QuizView.vue'
-import Register from '@views/RegisterView.vue'
+import HomeView from '@views/HomeView.vue'
+import LoginView from '@views/LoginView.vue'
+import QuizView from '@views/QuizView.vue'
+import RegisterView from '@views/RegisterView.vue'
+import SubjectView from '@views/SubjectView.vue'
 
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -10,19 +11,23 @@ export const router = createRouter({
   routes: [
     {
       path: '/',
-      component: Home,
+      component: HomeView,
     },
     {
       path: '/login',
-      component: Login,
+      component: LoginView,
     },
     {
       path: '/register',
-      component: Register,
+      component: RegisterView,
     },
     {
       path: '/quiz',
-      component: Quiz,
+      component: QuizView,
+    },
+    {
+      path: '/subject',
+      component: () => SubjectView,
     },
     {
       path: '/logout',
