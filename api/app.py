@@ -1,8 +1,8 @@
 import os
 from database import *
 from flask_cors import CORS
+from flask import Flask, jsonify
 from bcrypt import hashpw, gensalt
-from flask import Flask, jsonify, request
 from flask_jwt_extended import unset_jwt_cookies
 from restful import Login, Users, Subjects, Quizzes, jwt
 from flask_restful import Api, NotFound, MethodNotAllowed
@@ -25,6 +25,7 @@ api.add_resource(Login, "/login")
 api.add_resource(Users, "/users", "/users/<int:user_id>")
 api.add_resource(Quizzes, "/quizzes", "/quizzes/<int:quiz_id>")
 api.add_resource(Subjects, "/subjects", "/subjects/<int:subject_id>")
+
 
 @app.route('/logout', methods=['POST'])
 def logout():

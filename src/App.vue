@@ -12,7 +12,7 @@ provide('current_user', current_user)
     <NavBar />
     <div class="page mt-5 bg-body-tertiary">
       <Suspense>
-        <RouterView />
+        <RouterView style="width: 75dvw" />
         <template #fallback>
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -26,6 +26,7 @@ provide('current_user', current_user)
 <style scoped>
 .page {
   padding: 2rem;
+  min-height: calc(100dvh - 6rem);
   display: grid;
   place-items: center;
 }
