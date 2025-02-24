@@ -3,7 +3,16 @@
   padding: 0;
 
   box-sizing: border-box;
-  font-family: 'Geist', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+html,
+body {
+  height: 100dvh;
+
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--bs-dark) var(--bs-secondary-bg);
 }
 
 a {
@@ -16,4 +25,24 @@ form {
   }
   display: flex;
   flex-direction: column;
+}
+
+#app {
+  height: 100%;
+
+  .scrollable {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: 40dvh;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--bs-tertiary-bg) var(--bs-tertiary-bg);
+  }
+}
+
+.card {
+  height: fit-content;
 }

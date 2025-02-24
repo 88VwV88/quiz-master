@@ -72,7 +72,6 @@ class Users(Resource):
             }
         )
 
-    @jwt_required()
     def post(self):
         try:
             user = request.get_json()
@@ -136,6 +135,21 @@ class Subjects(Resource):
             return {"message": "Subject created successfully"}, 201
         except IntegrityError:
             return {"message": "Subject already exists!"}, 400
+
+    @jwt_required()
+    def delete(self, subject_id: int):
+        try:
+            subject = db.session.execute(select(Subject).where(
+                Subject.id == subject_id)).scalar()
+            db.session.delete(subject)
+            db.session.commit()
+            return {"message": "Subject deleted successfully"}, 200
+        except IntegrityError as error:
+            print(error)
+            return {"message": "Failed to delete subject!"}, 500
+        except Exception as error:
+            print(error)
+            return {"message": "Unknown error"}, 500
 
 
 class Quizzes(Resource):

@@ -27,17 +27,21 @@ export const router = createRouter({
     },
     {
       path: '/subject',
-      component: () => SubjectView,
+      component: SubjectView,
+    },
+    {
+      path: '/subject/:id',
+      component: SubjectView,
     },
     {
       path: '/logout',
-      redirect: (to) => {
+      redirect: (_) => {
         fetch('http://localhost:5000/logout', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-        }).then((res) => res.json())
+        }).then((response) => response.json())
 
         return { path: '/login' }
       },

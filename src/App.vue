@@ -3,31 +3,38 @@ import { provide, ref } from 'vue'
 import { RouterView } from 'vue-router'
 import NavBar from '@components/NavBar.vue'
 
-const current_user = ref(null)
-provide('current_user', current_user)
+const current_user = ref(null);
+provide('current_user', current_user);
 </script>
 
 <template>
-  <div>
-    <NavBar />
-    <div class="page mt-5 bg-body-tertiary">
-      <Suspense>
-        <RouterView style="width: 75dvw" />
-        <template #fallback>
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </template>
-      </Suspense>
-    </div>
+  <NavBar class="bg-dark" />
+
+  <div class="page">
+    <Suspense>
+      <RouterView style="grid-column: 2; grid-row: 2;" />
+
+      <template #fallback>
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </template>
+    </Suspense>
   </div>
 </template>
 
 <style scoped>
 .page {
-  padding: 2rem;
-  min-height: calc(100dvh - 6rem);
+  width: 100%;
+  height: calc(100% - 3rem);
+
   display: grid;
-  place-items: center;
+  gap: 1rem;
+
+  align-items: center;
+  justify-content: center;
+
+  grid-template-rows: 20px 1fr 20px;
+  grid-template-columns: 30px 1fr 30px;
 }
 </style>

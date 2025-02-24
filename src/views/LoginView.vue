@@ -27,7 +27,7 @@ async function handleSubmit(_) {
   if (!response.ok) {
     throw new Error(`[ERROR: ${response.status}] failed to login user!`)
   }
-  current_user.value = (await response.json()) || null
+  current_user.value = await response.json()
 
   router.push('/quiz')
 }
@@ -39,6 +39,7 @@ function toLabel(attr) {
 
 <template>
   <form>
+    <h1 class="display-5 text-center">Login</h1>
     <div v-for="attr in Object.keys(loginData)" :key="attr">
       <div class="form-floating mt-2">
         <input class="form-control" v-model="loginData[attr]" :type="getType(attr)" :id="attr" />
