@@ -7,8 +7,7 @@ import { RouterLink } from 'vue-router'
 const quizzes = ref([])
 const current_user = inject('current_user')
 
-onMounted(async () => {
-  if (current_user.value == null) return
+if (current_user.value != null) {
   const response = await fetch('http://127.0.0.1:5000/quizzes', {
     headers: {
       Authorization: `Bearer ${current_user.value.token}`,
@@ -19,9 +18,9 @@ onMounted(async () => {
     console.warn(`[ERROR: ${response.status}] ${message}!`)
   }
   quizzes.value = await response.json().then((data) => data.quizzes);
-});
+}
 
-const refreshQuizzes = async () => {
+async function refresh() {
   quizzes.value = (await fetch('http://127.0.0.1:5000/quizzes', {
     headers: {
       Authorization: `Bearer ${current_user.value.token}`,
@@ -29,15 +28,35 @@ const refreshQuizzes = async () => {
   }).then((response) => current_user.value ? response.json() : { quizzes: [] })).quizzes
 }
 
-const deleteQuiz = async (quiz) => {
+async function deleteQuiz(quiz) {
   const response = await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${current_user.value.token}`,
     },
   }).then((response) => response.json())
+
+  if (!response.ok)
+    throw new Error('Failed to delete quiz!')
+
+  console.warn(response.message)
+  refresh()
+}
+
+async function updateQuiz(quiz) {
+  const response = await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${current_user.value.token}`,
+    },
+    body: JSON.stringify(quiz),
+  })
+    .then(response => response.json())
+    .error(error => console.error(error))
+
   console.log(response.message)
-  await refreshQuizzes()
+  refresh()
 }
 </script>
 
@@ -58,16 +77,16 @@ const deleteQuiz = async (quiz) => {
   <div v-else>
     <h1 class="display-6">Active Quizzes</h1>
 
-    <button type="button" class="btn btn-secondary my-3" data-bs-toggle="modal" data-bs-target="#newQuizModal">
-      <img src="@/assets/add.svg" alt="add" />
+    <button type="button" class="btn btn-primary ps-3 pe-3 my-3" data-bs-toggle="modal" data-bs-target="#newQuizModal">
+      Add Quiz <img src="@/assets/add.svg" alt="add" />
     </button>
 
     <div class="scrollable">
       <QuizCard v-for="(quiz, i) in quizzes.filter(q => !(q.date_of_quiz > Date.now()))" :key="i" :quiz="quiz"
-        :admin="current_user.isAdmin" />
+        :admin="current_user.isAdmin" @delete="deleteQuiz" />
     </div>
 
-    <NewQuizForm @delete-quiz="deleteQuiz" @refresh-quizzes="refreshQuizzes" :quizzes="quizzes" />
+    <NewQuizForm @refresh.stop="refresh" :quizzes="quizzes" />
 
     <hr />
 
@@ -75,7 +94,7 @@ const deleteQuiz = async (quiz) => {
 
     <div class="scrollable">
       <QuizCard v-for="(quiz, i) in quizzes.filter(q => q.date_of_quiz <= Date.now())" :key="i" :quiz="quiz"
-        :admin="current_user.isAdmin" />
+        :admin="current_user.isAdmin" @delete.stop="deleteQuiz" @update.stop="updateQuiz" />
     </div>
   </div>
 </template>

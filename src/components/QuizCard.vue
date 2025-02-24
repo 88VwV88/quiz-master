@@ -1,6 +1,6 @@
 <script setup>
 const { quiz, admin } = defineProps(['quiz', 'admin']);
-const { deleteQuiz } = defineEmits(['deleteQuiz']);
+const emit = defineEmits(['delete', 'update']);
 </script>
 
 <template>
@@ -12,10 +12,10 @@ const { deleteQuiz } = defineEmits(['deleteQuiz']);
       <p class="card-text">{{ quiz.remarks }}</p>
 
       <div v-if="admin" class="row gap-2 p-2">
-        <button class="col btn btn-warning" @click.prevent.stop="() => deleteQuiz(quiz)">
+        <button class="col btn btn-warning" @click.prevent.stop="() => emit('update', quiz)">
           <img src="@/assets/edit.svg" alt="edit quiz" />
         </button>
-        <button v-if="admin" class="col btn btn-danger" @click.prevent.stop="() => deleteQuiz(quiz)">
+        <button v-if="admin" class="col btn btn-danger" @click.prevent.stop="() => emit('delete', quiz)">
           <img src="@/assets/remove.svg" alt="remove quiz" />
         </button>
       </div>

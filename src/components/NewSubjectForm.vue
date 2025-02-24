@@ -2,6 +2,7 @@
 import { inject, reactive } from 'vue'
 
 const current_user = inject('current_user')
+const emit = defineEmits(['refreshSubjects'])
 const chapters = reactive([])
 const subject = reactive({
   name: '',
@@ -15,7 +16,7 @@ const addChapter = () => {
   })
 }
 const removeChapter = (index) => chapters.splice(index, 1)
-const handleSubmit = async () => {
+const submit = async () => {
   const response = await fetch('http://localhost:5000/subjects', {
     method: 'POST',
     headers: {
@@ -28,8 +29,17 @@ const handleSubmit = async () => {
     }),
   })
 
+  subject.name = '';
+  subject.description = '';
+
+  for (let i = 0; i < chapters.length; ++i) {
+    chapters.pop();
+  }
+
   if (!response.ok)
     console.warn(`[ERROR: ${response.status}] Failed to add subject!`)
+
+  emit('refresh')
 }
 </script>
 
@@ -44,26 +54,32 @@ const handleSubmit = async () => {
         <div class="modal-body">
           <form>
             <div v-for="attr in Object.keys(subject)" class="form-floating text-start my-2" :key="attr">
-              <!-- if attr is remarks -->
               <textarea rows="10" cols="30" v-model="subject[attr]" v-if="attr === 'description'" :id="attr"
-                class="form-control" />
-              <!-- else -->
-              <input v-else v-model="subject[attr]" type="text" :id="attr" class="form-control" />
+                class="form-control" autocomplete="off" />
+
+              <input v-else v-model="subject[attr]" type="text" :id="attr" class="form-control" autocomplete="off" />
+
               <label :for="attr">{{ attr }}</label>
             </div>
+
             <p class="text-start">Chapters:</p>
+
             <button @click.prevent.stop="addChapter" class="btn btn-secondary fs-5">+</button>
+
             <ul>
               <li v-for="(chapter, i) in chapters" :key="i" class="d-flex flex-column">
                 <div>
                   <div class="form-floating my-2" v-for="attr in Object.keys(chapter)" :key="attr">
                     <textarea v-if="attr === 'description'" v-model="chapter[attr]" :id="`chapter-${i}-${attr}`"
-                      class="form-control" />
-                    <input v-else v-model="chapter[attr]" type="text" :id="`chapter-${i}-${attr}`"
-                      class="form-control" />
+                      class="form-control" autocomplete="off" />
+
+                    <input v-else v-model="chapter[attr]" type="text" :id="`chapter-${i}-${attr}`" class="form-control"
+                      autocomplete="off" />
+
                     <label :for="`chapter-${i}-name`">Chapter {{ i + 1 }} {{ attr }}</label>
                   </div>
                 </div>
+
                 <button @click.prevent.stop="() => removeChapter(i)" class="btn btn-secondary fs-5 my-2">-</button>
               </li>
             </ul>
@@ -71,7 +87,8 @@ const handleSubmit = async () => {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
-          <button type="button" class="btn btn-primary" @click.prevent.stop="handleSubmit">add subject</button>
+
+          <button type="button" class="btn btn-primary" @click.prevent.stop="submit">add subject</button>
         </div>
       </div>
     </div>

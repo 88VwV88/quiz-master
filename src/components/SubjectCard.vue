@@ -2,7 +2,7 @@
 import { inject } from 'vue'
 
 const current_user = inject('current_user')
-const { refreshSubjects } = defineEmits(['refreshSubjects'])
+const emit = defineEmits(['refresh'])
 const { subject, subjectKey } = defineProps(['subject', 'subjectKey'])
 
 const deleteSubject = async () => {
@@ -14,11 +14,21 @@ const deleteSubject = async () => {
   }).then((response) => response.json());
 
   console.log(response.message);
-  refreshSubjects().error('Failed to refresh subjects!');
+  emit('refresh');
 };
 
 const editSubject = async () => {
+  const response = await fetch(`http://localhost:5000/subjects/${subject.subject_id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${current_user.value.token}`,
+    },
+    body: JSON.stringify(subject),
+  }).then((response) => response.json());
 
+  console.log(response.message);
+  emit('refresh');
 };
 </script>
 
@@ -43,13 +53,15 @@ const editSubject = async () => {
       <div class="accordion-item" v-for="(chapter, i) in subject.chapters" :key="i">
         <h2 class="accordion-header">
           <button class="accordion-button text-muted fs-6 lead" data-bs-toggle="collapse" type="button"
-            :data-bs-target="`#subject${subjectKey}-chapter${i}`" :id="`header-${i}`">{{ chapter.name
-            }}</button>
+            :data-bs-target="`#subject${subjectKey}-chapter${i}`" :id="`header-${i}`">
+            {{ chapter.name }}
+          </button>
         </h2>
 
         <div class="accordion-body" :data-bs-parent="`#subject${subjectKey}-chapter`">
-          <div :id="`subject${subjectKey}-chapter${i}`" class="accordion-collapse collapse">{{
-            chapter.description }}</div>
+          <div :id="`subject${subjectKey}-chapter${i}`" class="accordion-collapse collapse">
+            {{ chapter.description }}
+          </div>
         </div>
       </div>
     </div>

@@ -27,6 +27,10 @@ form {
   flex-direction: column;
 }
 
+textarea {
+  min-height: 150px;
+}
+
 #app {
   height: 100%;
 

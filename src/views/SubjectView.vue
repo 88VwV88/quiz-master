@@ -16,7 +16,7 @@ onMounted(async () => {
   }).then(response => response.json()).then(data => data.subjects)
 })
 
-const refreshSubjects = async () => {
+async function refresh() {
   subjects.value = await fetch('http://localhost:5000/subjects', {
     headers: {
       Authorization: `Bearer ${current_user.value.token}`
@@ -27,23 +27,23 @@ const refreshSubjects = async () => {
 
 <template>
   <div v-if="current_user">
-    <NewSubjectForm />
+    <h1 class="display-5">Available Subjects</h1>
+    <div v-if="current_user.isAdmin">
+      <button type="button" class="btn btn-primary ps-3 pe-3 text-center mt-3" data-bs-toggle="modal"
+        data-bs-target="#newSubjectModal">
+        Add Subject <img src="@assets/add.svg" alt="add subject" />
+      </button>
 
-    <h1 class="display-5">Available Subjects:</h1>
-
-    <div class="scrollable" style="height: 60dvh;">
-      <SubjectCard @refresh-subjects="refreshSubjects" v-for="(subject, i) in subjects" :subjectKey="i" :key="i"
-        :subject="subject" />
+      <NewSubjectForm @refresh.stop="refresh" />
     </div>
 
-    <button type="button" class="btn btn-primary text-center mt-3" data-bs-toggle="modal"
-      data-bs-target="#newSubjectModal">
-      <img src="@assets/add.svg" alt="add subject" />
-    </button>
+    <div class="scrollable" style="height: 60dvh;">
+      <SubjectCard @refresh="refresh" v-for="(subject, i) in subjects" :subjectKey="i" :key="i" :subject="subject" />
+    </div>
   </div>
 
   <div v-else>
-    <p class="display-6">Please log in to view subjects.</p>
+    <p class="display-6">Please log in to view subjects</p>
     <RouterLink to="/login">Back to log in...</RouterLink>
   </div>
 </template>

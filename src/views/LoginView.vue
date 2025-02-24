@@ -11,11 +11,7 @@ const loginData = reactive({
 
 const current_user = inject('current_user')
 
-function getType(attr) {
-  return attr === 'password' ? 'password' : 'text'
-}
-
-async function handleSubmit(_) {
+async function submit() {
   const response = await fetch('http://127.0.0.1:5000/login', {
     method: 'POST',
     headers: {
@@ -38,15 +34,16 @@ function toLabel(attr) {
 </script>
 
 <template>
-  <form>
+  <form @submit.stop.prevent="submit">
     <h1 class="display-5 text-center">Login</h1>
     <div v-for="attr in Object.keys(loginData)" :key="attr">
       <div class="form-floating mt-2">
-        <input class="form-control" v-model="loginData[attr]" :type="getType(attr)" :id="attr" />
+        <input class="form-control" v-model="loginData[attr]" :type="attr === 'password' ? 'password' : 'text'"
+          :id="attr" />
         <label :for="attr">{{ toLabel(attr) }}</label>
       </div>
     </div>
-    <button @click.prevent.stop="handleSubmit" class="btn btn-primary mt-3" type="submit">
+    <button class="btn btn-primary mt-3" type="submit">
       login
     </button>
   </form>

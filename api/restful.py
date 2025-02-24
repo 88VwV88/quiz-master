@@ -1,6 +1,5 @@
 from models import *
 from database import db
-from sqlalchemy import select
 from datetime import datetime
 from flask_jwt_extended import (
     JWTManager,
@@ -10,6 +9,7 @@ from flask_jwt_extended import (
     set_access_cookies,
 )
 from flask_restful import Resource
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from flask import request, jsonify, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -99,6 +99,7 @@ class Subjects(Resource):
             {
                 "subjects": [
                     {
+                        "subject_id": subject.id,
                         "name": subject.name,
                         "description": subject.description,
                         "chapters": [
@@ -115,6 +116,7 @@ class Subjects(Resource):
     def post(self):
         try:
             subject = request.get_json()
+            print(subject)
             chapters = subject.pop("chapters")
 
             subject = Subject(
@@ -139,9 +141,7 @@ class Subjects(Resource):
     @jwt_required()
     def delete(self, subject_id: int):
         try:
-            subject = db.session.execute(select(Subject).where(
-                Subject.id == subject_id)).scalar()
-            db.session.delete(subject)
+            db.session.execute(delete(Subject).where(Subject.id == subject_id))
             db.session.commit()
             return {"message": "Subject deleted successfully"}, 200
         except IntegrityError as error:

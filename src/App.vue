@@ -34,7 +34,7 @@ provide('current_user', current_user);
   align-items: center;
   justify-content: center;
 
-  grid-template-rows: 20px 1fr 20px;
+  grid-template-rows: 40px 1fr 40px;
   grid-template-columns: 30px 1fr 30px;
 }
 </style>
