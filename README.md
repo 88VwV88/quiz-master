@@ -1,35 +1,13 @@
-# quiz-master-v2
+# QuizMasterV2
 
-This template should help get you started developing with Vue 3 in Vite.
+> ## Features implemented:
+>
+> - User based authentication
+> - Quiz master role and routes to create and manage quizzes
+> - Routes to create and manage subjects as quiz master
 
-## Recommended IDE Setup
+<hr>
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Technologies used:
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+[![Technologies used](https://skillicons.dev/icons?i=html,css,vuejs,nodejs,flask,python&theme=dark)](https://skillicons.dev)
