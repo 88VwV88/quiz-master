@@ -4,8 +4,8 @@ from flask_cors import CORS
 from flask import Flask, jsonify
 from bcrypt import hashpw, gensalt
 from flask_jwt_extended import unset_jwt_cookies
-from restful import Login, Users, Subjects, Quizzes, jwt
 from flask_restful import Api, NotFound, MethodNotAllowed
+from restful import Login, Users, Subjects, Quizzes, QuizSubmit, UserScores, jwt
 
 app = Flask(__name__)
 app.config.update({
@@ -25,6 +25,8 @@ api.add_resource(Login, "/login")
 api.add_resource(Users, "/users", "/users/<int:user_id>")
 api.add_resource(Quizzes, "/quizzes", "/quizzes/<int:quiz_id>")
 api.add_resource(Subjects, "/subjects", "/subjects/<int:subject_id>")
+api.add_resource(QuizSubmit, "/submit")
+api.add_resource(UserScores, "/scores")
 
 
 @app.route('/logout', methods=['POST'])

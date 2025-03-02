@@ -1,101 +1,83 @@
 <script setup>
-import NewQuizForm from '@/components/NewQuizForm.vue'
-import QuizCard from '@/components/QuizCard.vue'
-import { ref, inject, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import QuizCard from '@components/QuizCard.vue'
 
-const quizzes = ref([])
-const current_user = inject('current_user')
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { RouterLink, useRouter } from 'vue-router'
 
-if (current_user.value != null) {
-  const response = await fetch('http://127.0.0.1:5000/quizzes', {
-    headers: {
-      Authorization: `Bearer ${current_user.value.token}`,
-    },
-  });
-  if (!response.ok) {
-    const { message } = await response.json();
-    console.warn(`[ERROR: ${response.status}] ${message}!`)
-  }
-  quizzes.value = await response.json().then((data) => data.quizzes);
-}
+const store = useStore()
+const router = useRouter()
+await store.dispatch('fetchQuizzes')
 
-async function refresh() {
-  quizzes.value = (await fetch('http://127.0.0.1:5000/quizzes', {
-    headers: {
-      Authorization: `Bearer ${current_user.value.token}`,
-    },
-  }).then((response) => current_user.value ? response.json() : { quizzes: [] })).quizzes
-}
+const quizzes = computed(() => store.state.quizzes)
+const currentUser = computed(() => store.state.currentUser)
 
 async function deleteQuiz(quiz) {
-  const response = await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
+  console.table(quiz)
+  await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
     method: 'DELETE',
     headers: {
-      Authorization: `Bearer ${current_user.value.token}`,
+      Authorization: `Bearer ${currentUser.value.token}`,
     },
-  }).then((response) => response.json())
-
-  if (!response.ok)
-    throw new Error('Failed to delete quiz!')
-
-  console.warn(response.message)
-  refresh()
+  })
+    .then((response) => response.json())
+    .then(() => store.dispatch('fetchQuizzes'))
+    .catch(error => console.error(error))
 }
 
 async function updateQuiz(quiz) {
-  const response = await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
+  await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${current_user.value.token}`,
+      Authorization: `Bearer ${currentUser.value.token}`,
     },
     body: JSON.stringify(quiz),
   })
     .then(response => response.json())
-    .error(error => console.error(error))
-
-  console.log(response.message)
-  refresh()
+    .then(() => store.dispatch('fetchQuizzes'))
+    .catch(error => console.error(error))
+}
+function transition(task) {
+  document.startViewTransition(task)
+}
+function startQuiz(quiz_id) {
+  store.commit('startQuiz', quiz_id)
+  router.replace(`/quiz/${quiz_id}`)
 }
 </script>
 
 <template>
-  <div v-if="!current_user">
-    <p class="display-6">Failed to fetch quizzes!</p>
-    <RouterLink to="/login">Go back to login...</RouterLink>
-  </div>
+  <div v-if="currentUser">
+    <div v-if="currentUser.isAdmin">
+      <h1 class="display-6">Active Quizzes</h1>
+      <button type="button" class="btn btn-primary ps-3 pe-3 my-3"
+        @click.prevent="transition(() => router.push('/quiz/add'))">
+        Add Quiz <img src="@/assets/add.svg" alt="add" />
+      </button>
+      <div class="p-0 d-flex flex-wrap flex-md-nowrap">
+        <QuizCard v-for="(quiz, i) in quizzes.filter(q => !(q.date_of_quiz > Date.now()))" :key="i" :quiz="quiz"
+          :admin="currentUser.isAdmin" @update="updateQuiz" @delete="deleteQuiz" />
+      </div>
+      <hr />
+      <h1 class="display-6">Past Quizzes</h1>
+      <div class="container">
+        <QuizCard v-for="(quiz, i) in quizzes.filter(q => q.date_of_quiz <= Date.now())" :key="i" :quiz="quiz"
+          :admin="currentUser.isAdmin" @delete="deleteQuiz" @update="updateQuiz" />
+      </div>
+    </div>
 
-  <div v-else-if="!current_user.isAdmin">
-    <h1 class="display-6">Available Quizzes</h1>
-
-    <div v-if="quizzes" style="min-height: max(fit-content, 50dvh);">
-      <QuizCard v-for="quiz, i in quizzes" :quiz="quiz" :key="i" :admin="current_user.isAdmin" />
+    <div v-else>
+      <h1 class="display-6">Available Quizzes</h1>
+      <div v-show="quizzes" style="min-height: max(fit-content, 50dvh);">
+        <QuizCard v-for="quiz, i in quizzes" v-show="!quiz.done" :quiz="quiz" :key="i" @start="startQuiz" />
+      </div>
     </div>
   </div>
 
   <div v-else>
-    <h1 class="display-6">Active Quizzes</h1>
-
-    <button type="button" class="btn btn-primary ps-3 pe-3 my-3" data-bs-toggle="modal" data-bs-target="#newQuizModal">
-      Add Quiz <img src="@/assets/add.svg" alt="add" />
-    </button>
-
-    <div class="scrollable">
-      <QuizCard v-for="(quiz, i) in quizzes.filter(q => !(q.date_of_quiz > Date.now()))" :key="i" :quiz="quiz"
-        :admin="current_user.isAdmin" @delete="deleteQuiz" />
-    </div>
-
-    <NewQuizForm @refresh.stop="refresh" :quizzes="quizzes" />
-
-    <hr />
-
-    <h1 class="display-6">Past Quizzes</h1>
-
-    <div class="scrollable">
-      <QuizCard v-for="(quiz, i) in quizzes.filter(q => q.date_of_quiz <= Date.now())" :key="i" :quiz="quiz"
-        :admin="current_user.isAdmin" @delete.stop="deleteQuiz" @update.stop="updateQuiz" />
-    </div>
+    <p class="display-6">Failed to fetch quizzes!</p>
+    <RouterLink to="/login">Go back to login...</RouterLink>
   </div>
 </template>
 

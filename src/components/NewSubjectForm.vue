@@ -1,13 +1,16 @@
 <script setup>
-import { inject, reactive } from 'vue'
+import { useStore } from 'vuex'
+import { computed, reactive } from 'vue'
 
-const current_user = inject('current_user')
-const emit = defineEmits(['refreshSubjects'])
-const chapters = reactive([])
+const store = useStore()
+const emit = defineEmits(['refresh'])
+const currentUser = computed(() => store.state.currentUser)
+
 const subject = reactive({
   name: '',
   description: '',
 })
+const chapters = reactive([])
 
 const addChapter = () => {
   chapters.push({
@@ -21,7 +24,7 @@ const submit = async () => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${current_user.value.token}`,
+      Authorization: `Bearer ${currentUser.value.token}`,
     },
     body: JSON.stringify({
       ...subject,

@@ -1,37 +1,54 @@
 <script setup>
-import { inject } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
+import ScrollWatcher from '@components/ScrollWatcher.vue'
+import { useStore } from 'vuex'
+import router from '@/router'
 
-const current_user = inject('current_user')
+const store = useStore()
+const currentUser = computed(() => store.state.currentUser)
+
 const links = [
   { url: '/', text: 'Home', forAll: true },
   { url: '/login', text: 'Login', forAll: true },
   { url: '/register', text: 'Register', forAll: true },
   { url: '/quiz', text: 'Quiz', forAll: false },
   { url: '/subject', text: 'Subject', forAll: false },
+  { url: '/profile', text: 'Profile', forAll: false }
 ]
 
-const toRender = ({ forAll }) => {
-  if (current_user.value && current_user.value.username !== '') return !forAll
+function toRender({ forAll }) {
+  if (currentUser.value && currentUser.value.username !== 'admin') return !forAll
   return forAll
+}
+function transition(task) {
+  document.startViewTransition(() => task())
+}
+function logout() {
+  store.commit('logoutUser')
+  router.push('/login')
 }
 </script>
 
 <template>
-  <nav class="bg-dark">
-    <a href="/" class="ps-4 fs-5 lead">QuizMaster v2</a>
-    <div class="space"></div>
-    <ul class="justify-content-evenly navbar-links">
-      <li v-for="link, i in links.filter(link => toRender(link))" :key="i">
-        <RouterLink :to="link.url">{{ link.text }} </RouterLink>
-      </li>
-      <li v-if="current_user">
-        <RouterLink to="/logout" @click.stop.prevent="() => { current_user = null }">
-          Logout
-        </RouterLink>
-      </li>
-    </ul>
-  </nav>
+  <header>
+    <nav class="bg-dark fixed-top">
+      <span @click.prevent="() => transition(() => router.push('/'))" class="route-link ps-4 fs-5 lead">QuizMaster
+        v2</span>
+      <div class="space"></div>
+      <ul class="justify-content-evenly navbar-links">
+        <li v-for="link, i in links.filter(link => toRender(link))" :key="i">
+          <span class="route-link" @click.prevent="() => transition(() => router.push(link.url))">{{
+            link.text
+            }}
+          </span>
+        </li>
+        <li v-show="currentUser">
+          <span class="route-link" @click.prevent="() => transition(() => logout())">Logout</span>
+        </li>
+      </ul>
+      <ScrollWatcher />
+    </nav>
+  </header>
 </template>
 
 <style scoped>
@@ -53,7 +70,11 @@ nav {
   }
 }
 
-a:not(.router-link-active) {
-  color: white;
+span.router-link.active {
+  color: var(--bs-primary);
+}
+
+span.route-link {
+  cursor: pointer;
 }
 </style>

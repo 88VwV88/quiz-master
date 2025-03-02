@@ -4,15 +4,26 @@
 
   box-sizing: border-box;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+
+  ::view-transition-old(router-view) {
+    animation:
+      90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+      300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
+  }
+
+  ::view-transition-new(router-view) {
+    animation:
+      210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+      300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
+  }
 }
 
 html,
 body {
   height: 100dvh;
-
-  scrollbar-width: thin;
-  scroll-behavior: smooth;
-  scrollbar-color: var(--bs-dark) var(--bs-secondary-bg);
 }
 
 a {
@@ -28,25 +39,39 @@ form {
 }
 
 textarea {
-  min-height: 150px;
+  min-height: 100px;
 }
 
 #app {
   height: 100%;
-
-  .scrollable {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-    flex-direction: column;
-    overflow-y: scroll;
-    height: 40dvh;
-
-    scrollbar-width: thin;
-    scrollbar-color: var(--bs-tertiary-bg) var(--bs-tertiary-bg);
-  }
+  width: 100%;
 }
 
 .card {
   height: fit-content;
+  max-width: 20rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-from-right {
+  from {
+    transform: translateX(30px);
+  }
+}
+
+@keyframes slide-to-left {
+  to {
+    transform: translateX(-30px);
+  }
 }

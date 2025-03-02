@@ -1,32 +1,29 @@
 <script setup>
-import { provide, ref } from 'vue'
 import { RouterView } from 'vue-router'
 import NavBar from '@components/NavBar.vue'
-
-const current_user = ref(null);
-provide('current_user', current_user);
+import { KeepAlive } from 'vue';
 </script>
 
 <template>
   <NavBar class="bg-dark" />
-
   <div class="page">
-    <Suspense>
-      <RouterView style="grid-column: 2; grid-row: 2;" />
-
-      <template #fallback>
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </template>
-    </Suspense>
+    <KeepAlive>
+      <Suspense>
+        <RouterView style="view-transition-name: route-view; grid-area: 2 / 2" />
+        <template #fallback>
+          <div class="text-primary" role="status">
+            <span class="display-5">Loading...</span>
+          </div>
+        </template>
+      </Suspense>
+    </KeepAlive>
   </div>
 </template>
 
-<style scoped>
+<style>
 .page {
   width: 100%;
-  height: calc(100% - 3rem);
+  height: calc(100%);
 
   display: grid;
   gap: 1rem;
@@ -34,7 +31,24 @@ provide('current_user', current_user);
   align-items: center;
   justify-content: center;
 
-  grid-template-rows: 40px 1fr 40px;
-  grid-template-columns: 30px 1fr 30px;
+  grid-template-rows: 5dvh 1fr 5dvh;
+  grid-template-columns: 12.5dvw 1fr 12.5dvw;
+
+  @media(max-width: 640px) {
+    grid-template-rows: 20px 1fr 20px;
+    grid-template-columns: 15px 1fr 15px;
+  }
+}
+
+.v-move,
+.v-enter-active,
+.v-leave-active {
+  transition: 0.3s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 </style>

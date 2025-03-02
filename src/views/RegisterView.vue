@@ -1,9 +1,10 @@
 <script setup>
-import { reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const user = reactive({
+
+const user = ref({
   email: '',
   password: '',
   first_name: '',
@@ -17,30 +18,38 @@ const getType = (attr) => {
   if (attr === 'dob') return 'date'
   return 'text'
 }
-const handleSubmit = async (_) => {
-  const response = await fetch('http://localhost:5000/users', {
+
+async function submit() {
+  const { first_name, last_name } = user.value
+
+  await fetch('http://localhost:5000/users', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      name: `${user.first_name} ${user.last_name}`,
-      email: user.email,
-      password: user.password,
-      qualification: user.qualification,
-      dob: user.dob,
+      name: `${first_name} ${last_name}`,
+      ...user.value
     }),
+  }).then(async (response) => {
+    user.value = {
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: '',
+      qualification: '',
+      dob: new Date().toISOString().split('T')[0]
+    };
+
+    if (!response.ok)
+      throw new Error(`[ERROR] FAILED TO REGISTER USER`)
+    else {
+      const { message } = await response.json()
+      console.log('[LOG]', message)
+
+      router.push('/login')
+    }
   })
-
-  if (!response.ok) {
-    throw new Error(`[ERROR: ${response.status}] failed to register user!`)
-  }
-
-  const { message } = await response.json()
-  console.log('message from server:', message)
-
-  if (response.ok)
-    router.push('/login')
 }
 const toLabel = (attr) => {
   return attr
@@ -59,7 +68,7 @@ const toLabel = (attr) => {
         <label :for="attr">{{ toLabel(attr) }}</label>
       </div>
     </div>
-    <button @click.stop.prevent="() => handleSubmit()" class="btn btn-primary mt-3" type="submit">
+    <button @click.stop.prevent="submit" class="btn btn-primary mt-3" type="submit">
       register
     </button>
   </form>

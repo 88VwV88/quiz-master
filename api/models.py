@@ -16,7 +16,7 @@ class User(Base):
     qualification: Mapped[str] = mapped_column()
     dob: Mapped[date] = mapped_column()
     admin: Mapped[bool] = mapped_column(default=False)
-    scores: Mapped[Set["Scores"]] = relationship(
+    scores: Mapped[Set["Score"]] = relationship(
         back_populates="user", cascade="all, delete-orphan")
 
 
@@ -54,7 +54,7 @@ class Quiz(Base):
     chapter: Mapped["Chapter"] = relationship(back_populates="quizzes")
     questions: Mapped[Set["Question"]] = relationship(
         back_populates="quiz", cascade="all, delete-orphan")
-    scores: Mapped[Set["Scores"]] = relationship(back_populates="quiz")
+    scores: Mapped[Set["Score"]] = relationship(back_populates="quiz")
 
 
 class Question(Base):
@@ -74,8 +74,8 @@ class Option(Base):
     question_id: Mapped[int] = mapped_column(ForeignKey("question.id"))
 
 
-class Scores(Base):
-    __tablename__ = "scores"
+class Score(Base):
+    __tablename__ = "score"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     quiz_id: Mapped[int] = mapped_column(ForeignKey("quiz.id"))

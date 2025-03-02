@@ -155,10 +155,11 @@ class Subjects(Resource):
 class Quizzes(Resource):
     @jwt_required()
     def get(self, quiz_id: int | None = None):
+        current_user = get_jwt_identity()
         if quiz_id is not None:
-            return db.session.execute(
+            return jsonify(db.session.execute(
                 select(Quiz).where(Quiz.id == quiz_id)
-            ).scalar_one()
+            ).scalar_one())
         return jsonify(
             {
                 "quizzes": [
@@ -177,6 +178,7 @@ class Quizzes(Resource):
                             }
                             for question in quiz.questions
                         ],
+                        "done": current_user in (score.user for score in quiz.scores)
                     }
                     for quiz in db.session.execute(select(Quiz)).scalars()
                 ]
@@ -206,7 +208,7 @@ class Quizzes(Resource):
                         date_of_quiz=datetime.strptime(
                             quiz["date_of_quiz"], "%Y-%m-%d"
                         ).date(),
-                        duration=quiz["duration"],
+                        duration=0,
                     )
                     db.session.add(quiz)
                     db.session.commit()
@@ -251,6 +253,42 @@ class Quizzes(Resource):
             db.session.delete(quiz)
             db.session.commit()
             return {"message": "Quiz deleted successfully"}, 200
+        except IntegrityError as error:
+            print(error)
+            return {"message": "Failed to delete quiz!"}, 500
+        except Exception as error:
+            print(error)
+            return {"message": "Unknown error"}, 500
+
+
+class QuizSubmit(Resource):
+    def get(self):
+        print('GET @ /submit')
+        return {"message": "invalid operation"}
+
+    @jwt_required()
+    def post(self):
+        try:
+            quiz_data = request.get_json()
+            print(quiz_data)
+        except IntegrityError as error:
+            print(error)
+            return {"message": "Failed to delete quiz!"}, 500
+        except Exception as error:
+            print(error)
+            return {"message": "Unknown error"}, 500
+
+
+class UserScores(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            current_user = db.session.execute(
+                select(User).where(User.email == get_jwt_identity())).scalar()
+            print(current_user.scores)
+            return jsonify({
+                "scores": current_user.scores
+            })
         except IntegrityError as error:
             print(error)
             return {"message": "Failed to delete quiz!"}, 500

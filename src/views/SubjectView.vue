@@ -1,44 +1,34 @@
 <script setup>
-import { inject, onMounted, ref } from 'vue'
-import SubjectCard from '@/components/SubjectCard.vue'
-import NewSubjectForm from '@/components/NewSubjectForm.vue';
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router';
+import SubjectCard from '@components/SubjectCard.vue'
 
-const current_user = inject('current_user')
-const subjects = ref([])
+const store = useStore()
+await store.dispatch('fetchSubjects')
+const router = useRouter();
 
-onMounted(async () => {
-  if (current_user.value == null) return
-
-  subjects.value = await fetch('http://localhost:5000/subjects', {
-    headers: {
-      Authorization: `Bearer ${current_user.value.token}`
-    }
-  }).then(response => response.json()).then(data => data.subjects)
-})
-
-async function refresh() {
-  subjects.value = await fetch('http://localhost:5000/subjects', {
-    headers: {
-      Authorization: `Bearer ${current_user.value.token}`
-    }
-  }).then(response => response.json()).then(data => data.subjects)
+const currentUser = computed(() => store.state.currentUser)
+const subjects = computed(() => store.state.subjects)
+function transition(task) {
+  document.startViewTransition(task)
 }
 </script>
 
 <template>
-  <div v-if="current_user">
+  <div v-if="currentUser">
     <h1 class="display-5">Available Subjects</h1>
-    <div v-if="current_user.isAdmin">
-      <button type="button" class="btn btn-primary ps-3 pe-3 text-center mt-3" data-bs-toggle="modal"
-        data-bs-target="#newSubjectModal">
+
+    <div v-show="currentUser.isAdmin">
+      <button type="button" class="btn btn-primary ps-3 pe-3 text-center mt-3"
+        @click.prevent="transition(() => router.push('/subject/add'))">
         Add Subject <img src="@assets/add.svg" alt="add subject" />
       </button>
-
-      <NewSubjectForm @refresh.stop="refresh" />
     </div>
 
-    <div class="scrollable" style="height: 60dvh;">
-      <SubjectCard @refresh="refresh" v-for="(subject, i) in subjects" :subjectKey="i" :key="i" :subject="subject" />
+    <div class="d-flex p-0 flex-wrap flex-md-nowrap justify-content-start" style="height: 60dvh;">
+      <SubjectCard @refresh="() => store.dispatch('fetchSubjects')" v-for="(subject, i) in subjects" :subjectKey="i"
+        :key="i" :subject="subject" />
     </div>
   </div>
 
