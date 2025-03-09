@@ -167,6 +167,7 @@ class Quizzes(Resource):
                         "quiz_id": quiz.id,
                         "name": quiz.name,
                         "remarks": quiz.remarks,
+                        "subject": quiz.chapter.subject.name,
                         "chapter": quiz.chapter.name,
                         "date_of_quiz": quiz.date_of_quiz,
                         "questions": [
@@ -285,9 +286,9 @@ class UserScores(Resource):
         try:
             current_user = db.session.execute(
                 select(User).where(User.email == get_jwt_identity())).scalar()
-            print(current_user.scores)
+            print(list(current_user.scores))
             return jsonify({
-                "scores": current_user.scores
+                "scores": list(current_user.scores)
             })
         except IntegrityError as error:
             print(error)

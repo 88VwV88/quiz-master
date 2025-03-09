@@ -1,10 +1,11 @@
 <script setup>
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
 const store = useStore()
 const router = useRouter()
+const currentUser = computed(() => store.state.currentUser)
 
 const data = reactive({
   email: '',
@@ -12,8 +13,15 @@ const data = reactive({
 })
 
 async function submit() {
-  await store.dispatch('loginUser', data).then(() =>
-    document.startViewTransition(() => router.push('/quiz')))
+  try {
+    await store.dispatch('loginUser', data);
+    if (currentUser.value.isAdmin)
+      router.replace('/admin');
+    else
+      router.replace('/user');
+  } catch (error) {
+    console.error('[ERROR] login failed:', error);
+  }
 }
 function toLabel(attr) {
   return `${attr[0].toUpperCase()}${attr.slice(1)}`

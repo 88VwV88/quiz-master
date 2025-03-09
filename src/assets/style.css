@@ -8,13 +8,13 @@
   scrollbar-width: none;
   scroll-behavior: smooth;
 
-  ::view-transition-old(router-view) {
+  ::view-transition-old(route-view) {
     animation:
       90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
       300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
   }
 
-  ::view-transition-new(router-view) {
+  ::view-transition-new(route-view) {
     animation:
       210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
       300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
@@ -50,6 +50,23 @@ textarea {
 .card {
   height: fit-content;
   max-width: 20rem;
+}
+
+.page {
+  height: 100%;
+  display: grid;
+  gap: 1rem;
+
+  align-items: center;
+  justify-content: center;
+
+  grid-template-rows: 5dvh 1fr 5dvh;
+  grid-template-columns: 12.5dvw 1fr 12.5dvw;
+
+  @media (max-width: 640px) {
+    grid-template-rows: 20px 1fr 20px;
+    grid-template-columns: 15px 1fr 15px;
+  }
 }
 
 @keyframes fade-in {

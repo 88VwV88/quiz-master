@@ -16,28 +16,37 @@ const selectedOption = ref(-1)
 
 const selected = reactive({})
 
-function nextQuestion() {
+function onNext() {
   if (selectedOption.value !== -1) {
-    selected[currentQuestion.value] = selectedOption
-    ++currentQuestion.value
+    selected[currentQuestion.value] = selectedOption;
+    ++currentQuestion.value;
+    selectedOption.value = -1;
   }
 }
-function submitAnswers() {
-  fetch('http://localhost:5000/submit', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-    body: JSON.stringify({
-      selected
-    })
-  }).then(() => router.push('/quiz'))
+async function onSubmit() {
+  try {
+    await fetch('http://localhost:5000/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentUser.value.token}`,
+      },
+      body: JSON.stringify({
+        selected
+      })
+    });
+    store.commit('clearQuiz');
+    router.push('/user');
+  } catch (error) {
+    console.error('[ERROR] submitting answers:', error);
+  } finally {
+    selectedOption.value = -1;
+  }
 }
 </script>
 
 <template>
-  <div>
+  <div v-if="quiz" class="container">
     <h1 class="display-2 text-center">{{ quiz.name }}</h1>
     <div class="quiz">
       <div class="question" v-for="(question, i) in quiz.questions" :key="i" v-show="currentQuestion === i">
@@ -46,16 +55,17 @@ function submitAnswers() {
           <div class="question__option" v-for="(option, j) in question.options" :key="j">
             <input class="question__optioninput btn-check" :checked="j === selectedOption"
               :id="`question${i}-option${j}`" autocomplete="off" />
-            <label class="question__optionlabel btn btn-outline-primary" @click.stop.prevent="selectedOption = j"
+            <label class="question__optionlabel btn btn-outline-primary" @click.prevent="selectedOption = j"
               :for="`question${i}-option${j}`">{{
                 option
               }}</label>
           </div>
-          <button class="btn btn-success" @click.prevent.stop="nextQuestion">Next</button>
+          <button class="btn btn-success" @click.prevent="onNext">next</button>
+          <button class="btn btn-warning" @click.prevent="onNext">skip</button>
         </div>
       </div>
       <button v-show="currentQuestion === quiz.questions.length" class="quiz__submit btn btn-success"
-        style="grid-area: 2 / 2" @click="submitAnswers">Submit</button>
+        style="grid-area: 2 / 2" @click="onSubmit">Submit</button>
     </div>
   </div>
 </template>

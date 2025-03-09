@@ -38,7 +38,7 @@ async function submit() {
   if (!response.ok)
     console.error(`[ERROR] Failed to add subject!`);
   store.dispatch('fetchQuizzes');
-  router.push('/subject')
+  router.push('/admin')
 }
 </script>
 
@@ -46,7 +46,7 @@ async function submit() {
   <div class="mx-5 px-5">
     <h4 class="display-4 text-center">Add New Subject</h4>
     <form @submit.prevent.stop="submit" class="container-md">
-      <div v-for="attr in Object.keys(subject)" class="form-floating text-start my-2" :key="attr">
+      <div v-for="(attr, key) in Object.keys(subject)" class="form-floating text-start my-2" :key>
         <textarea rows="10" cols="30" v-model="subject[attr]" v-if="attr === 'description'" :id="attr"
           class="form-control" autocomplete="off" />
         <input v-else v-model="subject[attr]" type="text" :id="attr" class="form-control" autocomplete="off" />

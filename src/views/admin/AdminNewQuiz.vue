@@ -15,47 +15,46 @@ const quiz = ref({
 const questions = ref([])
 
 async function submit() {
-  if (currentUser.value == null) throw new Error('failed to submit quiz!')
+  try {
+    await fetch('http://127.0.0.1:5000/quizzes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentUser.value.token}`,
+      },
+      body: JSON.stringify({
+        ...quiz.value,
+        questions: questions.value,
+      }),
+    });
 
-  const response = await fetch('http://127.0.0.1:5000/quizzes', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-    body: JSON.stringify({
-      ...quiz.value,
-      questions: questions.value,
-    }),
-  })
-    .then(response => response.json())
-    .catch(error => console.error(error))
+    quiz.value = {
+      name: null,
+      remarks: null,
+      subject: '',
+      chapter: '',
+      duration: 0,
+    };
+    questions.value = [];
 
-  console.log(response.message)
-
-  quiz.value = {
-    name: null,
-    remarks: null,
-    subject: '',
-    chapter: '',
-    duration: 0,
+    await store.dispatch('fetchQuizzes');
+    router.push('/admin/quiz');
+  } catch (error) {
+    console.error('[ERROR] Failed to submit quiz:', error)
   }
-
-  questions.value = []
-  store.dispatch('fetchQuizzes')
 };
 
 function addQuestion() {
-  const options = []
+  const options = [];
 
   for (let i = 0; i < 4; ++i)
-    options.push({ statement: '' })
+    options.push({ statement: '' });
 
   questions.value.push({
     statement: '',
     options: options,
     answer: 0,
-  })
+  });
 }
 
 function removeQuestion(index) {

@@ -68,5 +68,3 @@ const editSubject = async () => {
     </div>
   </div>
 </template>
-
-<style scoped></style>

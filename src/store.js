@@ -1,6 +1,7 @@
-import Vuex from 'vuex'
+import Vuex, { createLogger } from 'vuex'
 
 export const store = new Vuex.Store({
+  plugins: [createLogger()],
   state: {
     currentUser: null,
     authenticated: false,
@@ -8,6 +9,7 @@ export const store = new Vuex.Store({
     quizzes: [],
     subjects: [],
     scores: [],
+    hideNavbar: false,
   },
   actions: {
     async loginUser({ commit }, data) {
@@ -87,6 +89,9 @@ export const store = new Vuex.Store({
     },
     startQuiz(state, quizId) {
       state.activeQuiz = quizId
+    },
+    clearQuiz(state) {
+      state.activeQuiz = null
     },
     setScores(state, scores) {
       state.scores = scores
