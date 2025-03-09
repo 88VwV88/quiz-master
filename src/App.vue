@@ -1,54 +1,33 @@
 <script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import { RouterView } from 'vue-router'
 import NavBar from '@components/NavBar.vue'
-import { KeepAlive } from 'vue';
+
+const store = useStore()
+const currentUser = computed(() => store.state.currentUser)
+
+const links = computed(() => !currentUser.value ?
+  [
+    { name: 'Home', path: '/' },
+    { name: 'Login', path: '/login' },
+    { name: 'Register', path: '/register' },
+  ] : currentUser.value.isAdmin ?
+    [
+      { name: "Home", path: "" },
+      { name: "Quiz", path: "quiz" },
+      { name: "Summary", path: "summary" },
+    ] : [
+      { name: "Home", path: "" },
+      { name: "Quiz", path: "quiz" },
+    ])
 </script>
 
 <template>
-  <NavBar class="bg-dark" />
-  <div class="page">
-    <KeepAlive>
-      <Suspense>
-        <RouterView style="view-transition-name: route-view; grid-area: 2 / 2" />
-        <template #fallback>
-          <div class="text-primary" role="status">
-            <span class="display-5">Loading...</span>
-          </div>
-        </template>
-      </Suspense>
-    </KeepAlive>
-  </div>
+  <NavBar :links class="bg-dark" />
+  <KeepAlive>
+    <div class="page">
+      <RouterView style="view-transition-name: route-view; grid-area: 2 / 2" />
+    </div>
+  </KeepAlive>
 </template>
-
-<style>
-.page {
-  width: 100%;
-  height: calc(100%);
-
-  display: grid;
-  gap: 1rem;
-
-  align-items: center;
-  justify-content: center;
-
-  grid-template-rows: 5dvh 1fr 5dvh;
-  grid-template-columns: 12.5dvw 1fr 12.5dvw;
-
-  @media(max-width: 640px) {
-    grid-template-rows: 20px 1fr 20px;
-    grid-template-columns: 15px 1fr 15px;
-  }
-}
-
-.v-move,
-.v-enter-active,
-.v-leave-active {
-  transition: 0.3s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-</style>

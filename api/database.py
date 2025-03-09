@@ -7,20 +7,22 @@ from werkzeug.security import generate_password_hash
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 
+
 def init_db(app):
     db.init_app(app)
     migrate.init_app(app, db)
     with app.app_context():
         db.create_all()
         if (
-            db.session.execute(select(User).where(User.email == "admin@qm.xyz")).first()
+            db.session.execute(select(User).where(
+                User.email == "admin@qm.xyz")).first()
             is None
         ):
             user = User(
                 name="vwv",
                 email="admin@qm.xyz",
                 password=generate_password_hash("admin"),
-                qualification="NA",
+                qualification='Senior Secondary',
                 dob=date(2004, 5, 8),
                 admin=True,
             )

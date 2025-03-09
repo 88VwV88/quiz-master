@@ -38,9 +38,6 @@ async function updateQuiz(quiz) {
     .then(() => store.dispatch('fetchQuizzes'))
     .catch(error => console.error(error))
 }
-function transition(task) {
-  document.startViewTransition(task)
-}
 function startQuiz(quiz_id) {
   store.commit('startQuiz', quiz_id)
   router.replace(`/quiz/${quiz_id}`)
@@ -48,36 +45,13 @@ function startQuiz(quiz_id) {
 </script>
 
 <template>
-  <div v-if="currentUser">
-    <div v-if="currentUser.isAdmin">
-      <h1 class="display-6">Active Quizzes</h1>
-      <button type="button" class="btn btn-primary ps-3 pe-3 my-3"
-        @click.prevent="transition(() => router.push('/quiz/add'))">
-        Add Quiz <img src="@/assets/add.svg" alt="add" />
-      </button>
-      <div class="p-0 d-flex flex-wrap flex-md-nowrap">
-        <QuizCard v-for="(quiz, i) in quizzes.filter(q => !(q.date_of_quiz > Date.now()))" :key="i" :quiz="quiz"
-          :admin="currentUser.isAdmin" @update="updateQuiz" @delete="deleteQuiz" />
-      </div>
-      <hr />
-      <h1 class="display-6">Past Quizzes</h1>
-      <div class="container">
-        <QuizCard v-for="(quiz, i) in quizzes.filter(q => q.date_of_quiz <= Date.now())" :key="i" :quiz="quiz"
-          :admin="currentUser.isAdmin" @delete="deleteQuiz" @update="updateQuiz" />
-      </div>
-    </div>
-
-    <div v-else>
+  <div>
+    <div v-if="currentUser">
       <h1 class="display-6">Available Quizzes</h1>
       <div v-show="quizzes" style="min-height: max(fit-content, 50dvh);">
         <QuizCard v-for="quiz, i in quizzes" v-show="!quiz.done" :quiz="quiz" :key="i" @start="startQuiz" />
       </div>
     </div>
-  </div>
-
-  <div v-else>
-    <p class="display-6">Failed to fetch quizzes!</p>
-    <RouterLink to="/login">Go back to login...</RouterLink>
   </div>
 </template>
 

@@ -1,86 +1,92 @@
 import HomeView from '@views/HomeView.vue'
-import QuizView from '@views/QuizView.vue'
 import LoginView from '@views/LoginView.vue'
-import ProfileView from '@views/ProfileView.vue'
-import SubjectView from '@views/SubjectView.vue'
 import RegisterView from '@views/RegisterView.vue'
-import ActiveQuizView from '@views/ActiveQuizView.vue'
-import NewSubjectView from '@views/NewSubjectView.vue'
+
+import DashboardView from '@views/DashboardView.vue'
+import UserTakeQuiz from '@views/UserTakeQuiz.vue'
+
+import UserQuizzes from '@views/UserQuizzes.vue'
+import AdminSubjects from '@views/AdminSubjects.vue'
+import AdminNewQuiz from '@views/AdminNewQuiz.vue'
+import AdminNewSubject from '@views/AdminNewSubject.vue'
 
 import { store } from '@/store'
 import { createRouter, createWebHistory } from 'vue-router'
-import NewQuizView from './views/NewQuizView.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      name: 'home',
       path: '/',
       component: HomeView,
     },
     {
+      name: 'login',
       path: '/login',
       component: LoginView,
     },
     {
+      name: 'register',
       path: '/register',
       component: RegisterView,
     },
     {
-      path: '/quiz/:id(\\d+)',
-      component: ActiveQuizView,
-      beforeEnter(_to, _from, next) {
-        if (!store.state.authenticated) {
-          next({ path: '/login' })
-        } else next()
-      },
-    },
-    {
-      path: '/quiz',
-      component: QuizView,
+      path: '/user',
+      component: DashboardView,
       beforeEnter(_to, from, next) {
-        if (!store.state.authenticated && from.path !== '/login') {
-          next({ path: '/login' })
+        if (!store.state.authenticated && from.name !== 'login') {
+          next({ name: 'login' })
         } else next()
       },
+      children: [
+        {
+          name: 'userQuizzes',
+          path: 'quiz',
+          component: UserQuizzes,
+        },
+        {
+          name: 'takeQuiz',
+          path: 'quiz/:id(\\d+)',
+          component: UserTakeQuiz,
+        },
+      ],
     },
     {
-      path: '/quiz/add',
-      component: NewQuizView,
+      path: '/admin',
+      component: DashboardView,
       beforeEnter(_to, from, next) {
-        if (!store.state.authenticated && from.path !== '/login') {
-          next({ path: '/login' })
+        if (!store.state.authenticated && from.name !== 'login') {
+          next({ name: 'login' })
         } else next()
       },
-    },
-    {
-      path: '/subject',
-      component: SubjectView,
-      beforeEnter(_to, _from, next) {
-        if (!store.state.authenticated) {
-          next({ path: '/login' })
-        } else next()
-      },
-    },
-    {
-      path: '/subject/add',
-      component: NewSubjectView,
-      beforeEnter(_to, from, next) {
-        if (!store.state.authenticated && from.path !== '/login') {
-          next({ path: '/login' })
-        } else next()
-      },
-    },
-    {
-      path: '/profile',
-      component: ProfileView,
-      beforeEnter(_to, _from, next) {
-        if (!store.state.authenticated) {
-          next({ path: '/login' })
-        } else next()
-      },
+      children: [
+        {
+          name: 'quiz',
+          path: 'quiz',
+          component: UserQuizzes,
+        },
+        {
+          name: 'addQuiz',
+          path: 'quiz/add',
+          component: AdminNewQuiz,
+        },
+        {
+          name: 'subject',
+          path: 'subject',
+          component: AdminSubjects,
+        },
+        {
+          name: 'addSubject',
+          path: 'subject/add',
+          component: AdminNewSubject,
+        },
+      ],
     },
   ],
+})
+router.beforeEach((_to, _from, next) => {
+  document.startViewTransition(next)
 })
 
 export default router
