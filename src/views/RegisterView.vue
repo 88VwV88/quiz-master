@@ -84,7 +84,7 @@ const toLabel = (attr) => {
       </div>
     </div>
     <button @click.stop.prevent="submit" class="btn btn-primary mt-3" type="submit">
-      register
+      Register
     </button>
   </form>
 </template>

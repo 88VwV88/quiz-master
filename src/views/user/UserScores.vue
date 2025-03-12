@@ -6,15 +6,25 @@ const store = useStore();
 await store.dispatch('fetchScores');
 
 const scores = computed(() => store.state.scores);
+console.log(scores.value)
 </script>
 
 <template>
   <div class="container">
-    <h1 class="display-4 text-center">User Scores:</h1>
+    <h1 class="display-4 text-center">Quiz Scores</h1>
     <hr />
-    <div v-if="scores.length !== 0" class="p-2 bg-dark rounded">
+    <div v-if="scores && scores.length !== 0">
+      <div class="row text-center rounded bg-secondary lead text-white fw-bold p-2 mt-2">
+        <span class="col">Quiz ID</span>|
+        <span class="col">Date</span>|
+        <span class="col">Score</span>
+      </div>
       <div v-for="(score, key) in scores" :key>
-        {{ score }}
+        <div class="row text-center rounded bg-dark p-2 mt-2">
+          <span class="col">{{ score.id }}</span>|
+          <span class="col">{{ new Date(score.date_of_quiz).toISOString().split('T')[0] }}</span>|
+          <span class="col">{{ score.correct }} / {{ score.total }}</span>
+        </div>
       </div>
     </div>
     <div v-else class="lead bg-dark rounded p-2 text-center">No scores available</div>

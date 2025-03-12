@@ -44,7 +44,7 @@ async function updateQuiz(quiz) {
     <button type="button" class="btn btn-primary ps-3 pe-3 my-3" @click.prevent="router.push('/admin/quiz/add')">
       Add Quiz <img src="@/assets/add.svg" alt="add" />
     </button>
-    <div class="p-0 d-flex flex-wrap flex-md-nowrap">
+    <div v-show="quizzes" class="p-0 d-flex flex-wrap flex-md-nowrap">
       <QuizCard v-for="(quiz, i) in quizzes.filter(quiz => !(quiz.date_of_quiz > Date.now()))" :key="i" :quiz
         :admin="currentUser.isAdmin" @update="updateQuiz" @delete="deleteQuiz" />
     </div>

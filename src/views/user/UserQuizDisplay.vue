@@ -8,7 +8,6 @@ const store = useStore();
 const router = useRouter();
 
 const quiz = computed(() => store.state.quizzes.at(route.params.id));
-console.table(quiz.value);
 
 const attrs = [
   { name: 'Subject', value: quiz.value.subject },
@@ -33,6 +32,6 @@ function startQuiz() {
         {{ attr.value }}
       </span>
     </div>
-    <button class="btn btn-primary mt-3 w-100" @click.prevent="startQuiz">start quiz</button>
+    <button class="btn btn-primary mt-3 fs-5 w-100" @click.prevent="startQuiz">start quiz</button>
   </div>
 </template>

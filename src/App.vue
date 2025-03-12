@@ -36,16 +36,16 @@ onErrorCaptured(e => {
   <div v-if="errMsg" class="alert alert-danger" role="alert">
     {{ errMsg }}
   </div>
-  <KeepAlive v-else class="page">
-    <Suspense style="grid-template-areas: 2 / 2;">
-      <template #default style="grid-template-areas: 2 / 2;">
+  <KeepAlive v-else>
+    <Suspense>
+      <template #default>
         <div class="page">
           <RouterView style="view-transition-name: route-view; grid-area: 2 / 2;" />
         </div>
       </template>
       <template #fallback>
         <div role="status">
-          <span class="display-5 text-white">Loading...</span>
+          <span class="display-5 text-white" style="grid-area: 2 / 2">Loading...</span>
         </div>
       </template>
     </Suspense>

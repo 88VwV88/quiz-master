@@ -14,10 +14,10 @@ import AdminNewQuiz from '@views/admin/AdminNewQuiz.vue'
 import AdminNewSubject from '@views/admin/AdminNewSubject.vue'
 
 import { store } from '@/store'
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 export const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes: [
     {
       name: 'home',
@@ -101,6 +101,7 @@ export const router = createRouter({
     },
   ],
 })
+
 router.beforeEach((_to, _from, next) => {
   document.startViewTransition(next)
 })

@@ -1,5 +1,5 @@
 <script setup>
-
+const store = useStore();
 </script>
 
 <template>

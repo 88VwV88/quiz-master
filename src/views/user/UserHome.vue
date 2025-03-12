@@ -10,7 +10,9 @@ const router = useRouter()
 await store.dispatch('fetchQuizzes')
 
 const quizzes = computed(() => store.state.quizzes);
-const currentUser = computed(() => store.state.currentUser);
+const upcommingCount = computed(() => {
+  return quizzes.value.filter((quiz) => !quiz.done).length;
+});
 
 function onStart(quiz_id) {
   store.commit('startQuiz', quiz_id);
@@ -23,13 +25,14 @@ function onView(quiz_id) {
 
 <template>
   <div>
-    <div v-if="currentUser">
-      <h1 class="display-6 text-center">Upcomming Quizzes</h1>
-      <hr />
-      <div v-show="quizzes" class="container-md">
-        <QuizCard v-for="(quiz, key) in quizzes" v-show="!quiz.done" :quiz="quiz" :key @view="() => onView(key)"
-          @start="onStart" />
-      </div>
+    <h1 class="display-6 text-center">Upcomming Quizzes</h1>
+    <hr />
+    <div v-if="quizzes && upcommingCount != 0" class="container-md">
+      <QuizCard v-for="(quiz, key) in quizzes" v-show="!quiz.done" :quiz="quiz" :key @view="() => onView(key)"
+        @start="onStart" />
+    </div>
+    <div v-else>
+      <h1 class="display-6 text-center rounded bg-dark p-2">No Quizzes Available</h1>
     </div>
   </div>
 </template>

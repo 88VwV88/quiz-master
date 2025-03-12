@@ -53,7 +53,8 @@ class Quiz(Base):
     subject_id: Mapped[int] = mapped_column(ForeignKey("subject.id"))
     chapter_id: Mapped[int] = mapped_column(ForeignKey("chapter.id"))
     date_of_quiz: Mapped[date]
-    duration: Mapped[str] = mapped_column(default="30:00")
+    hours: Mapped[int] = mapped_column()
+    minutes: Mapped[int] = mapped_column()
     remarks: Mapped[str] = mapped_column(default="")
     subject: Mapped["Subject"] = relationship(back_populates="quizzes")
     chapter: Mapped["Chapter"] = relationship(back_populates="quizzes")
@@ -68,6 +69,7 @@ class Question(Base):
     statement: Mapped[str]
     quiz_id: Mapped[int] = mapped_column(ForeignKey("quiz.id"))
     quiz: Mapped["Quiz"] = relationship("Quiz")
+    correct: Mapped[int] = mapped_column(ForeignKey("question.id"))
     options: Mapped[Set["Option"]] = relationship(cascade="all, delete-orphan")
 
 
@@ -75,7 +77,6 @@ class Option(Base):
     __tablename__ = "option"
     id: Mapped[int] = mapped_column(primary_key=True)
     statement: Mapped[str]
-    is_correct: Mapped[bool] = mapped_column(default=False)
     question_id: Mapped[int] = mapped_column(ForeignKey("question.id"))
 
 
