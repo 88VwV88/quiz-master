@@ -11,7 +11,7 @@
     "lint:eslint": "eslint . --fix",
     "lint": "run-s lint:*",
     "format": "prettier --write src/",
-    "api": ".\\.venv\\Scripts\\python.exe api\\app.py"
+    "api": ".venv/bin/python api/app.py"
   },
   "dependencies": {
     "vue": "^3.5.13",

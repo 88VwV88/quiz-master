@@ -12,29 +12,7 @@ await store.dispatch('fetchQuizzes');
 const quizzes = computed(() => store.state.quizzes);
 
 async function deleteQuiz(quiz) {
-  await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-  })
-    .then((response) => response.json())
-    .then(() => store.dispatch('fetchQuizzes'))
-    .catch((error) => console.error(error));
-}
-
-async function updateQuiz(quiz) {
-  await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-    body: JSON.stringify(quiz),
-  })
-    .then((response) => response.json())
-    .then(() => store.dispatch('fetchQuizzes'))
-    .catch((error) => console.error(error));
+  store.dispatch('deleteQuiz', quiz.quiz_id);
 }
 </script>
 

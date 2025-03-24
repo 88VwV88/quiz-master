@@ -1,20 +1,19 @@
 <script setup>
-import { computed, reactive } from 'vue'
 import { useStore } from 'vuex'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const store = useStore()
 const router = useRouter()
 const currentUser = computed(() => store.state.currentUser)
 
-const data = reactive({
-  email: '',
-  password: '',
-})
+const email = ref('')
+const password = ref('')
 
-async function submit() {
+async function onSubmit() {
   try {
-    await store.dispatch('loginUser', data);
+    await store.dispatch('loginUser', { email: email.value, password: password.value });
+
     if (currentUser.value.isAdmin)
       router.replace('/admin');
     else
@@ -23,22 +22,21 @@ async function submit() {
     console.error('[ERROR] login failed:', error);
   }
 }
-function toLabel(attr) {
-  return `${attr[0].toUpperCase()}${attr.slice(1)}`
-}
 </script>
 
 <template>
-  <form @submit.prevent="submit">
+  <form @submit.prevent="onSubmit">
     <h1 class="display-5 text-center">Login</h1>
-    <div v-for="attr in Object.keys(data)" :key="attr">
-      <div class="form-floating mt-2">
-        <input class="form-control" v-model="data[attr]" :type="attr === 'password' ? 'password' : 'text'" :id="attr" />
-        <label :for="attr">{{ toLabel(attr) }}</label>
-      </div>
+    <div class="form-floating mt-2">
+      <input class="form-control" v-model="email" type="text" id="email" />
+      <label for="email">Email</label>
+    </div>
+    <div class="form-floating mt-2">
+      <input class="form-control" v-model="password" type="password" id="password" />
+      <label for="password">Password</label>
     </div>
     <button class="btn btn-primary mt-3" type="submit">
-      login
+      Login
     </button>
   </form>
 </template>

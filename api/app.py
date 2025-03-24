@@ -1,39 +1,51 @@
-import os
 from database import *
 from flask_cors import CORS
-from flask import Flask, jsonify
-from bcrypt import hashpw, gensalt
-from flask_jwt_extended import unset_jwt_cookies
-from flask_restful import Api, NotFound, MethodNotAllowed
-from restful import Login, Users, Subjects, Quizzes, QuizSubmit, UserScores, jwt
+from config import AppConfig
+from resources import api, jwt
+from flask_restful import NotFound, MethodNotAllowed
+from flask import Flask, make_response, jsonify, request
+from flask_jwt_extended import unset_jwt_cookies, set_access_cookies, create_access_token
+from werkzeug.security import check_password_hash
+from sqlalchemy import select
 
-app = Flask(__name__)
-app.config.update({
-    "JWT_TOKEN_LOCATION": ["headers"],
-    "JWT_COOKIE_CSRF_PROTECT": False,
-    "SQLALCHEMY_DATABASE_URI":  "sqlite:///quiz-master.db",
-    "JWT_SECRET_KEY":  os.environ.get(
-        "JWT_SECRET_KEY", hashpw(b"itsAs3cr34tkeyforJWT", gensalt())
-    ),
-})
+cors = CORS()
+def create_app():
+    app = Flask(__name__)
+    # add the API and AppConfig
+    cors.init_app(app, supports_credentials=True, resources={
+        r"/*": {"origins": "http://localhost:3000"}})
+    api.init_app(app)
+    jwt.init_app(app)
+    app.config.from_object(AppConfig)
+    app.app_context().push()
 
+    return app
+
+# initialize the app
+app = create_app()
+# initialize the database
 init_db(app)
-api = Api(app)
-cors = CORS(app)
-jwt.init_app(app)
-api.add_resource(Login, "/login")
-api.add_resource(Users, "/users", "/users/<int:user_id>")
-api.add_resource(Quizzes, "/quizzes", "/quizzes/<int:quiz_id>")
-api.add_resource(Subjects, "/subjects", "/subjects/<int:subject_id>")
-api.add_resource(QuizSubmit, "/submit")
-api.add_resource(UserScores, "/scores")
 
+@app.route('/login', methods=('POST',))
+def login():
+    email = request.json.get('email')
+    password = request.json.get('password')
 
-@app.route('/logout', methods=['POST'])
+    if user := session.execute(select(User).where(User.email==email)).scalar():
+        if check_password_hash(user.password, password):
+            response = make_response(dict(name=user.name, isAdmin=user.email=='admin@qm.xyz'))
+            access_token = create_access_token(identity=user)
+            set_access_cookies(response, access_token)
+            
+            return response
+        return jsonify(message='invalid credentials'), 401
+    return jsonify(message='failed to login user'), 404
+
+@app.route('/logout', methods=('GET',))
 def logout():
-    response = jsonify({'msg': 'logged out successfully!'})
+    response = make_response(message='user logged out')
     unset_jwt_cookies(response)
-    return response
+    return response, 200
 
 
 @app.errorhandler(NotFound)
@@ -51,4 +63,4 @@ def handle_method_not_allowed(e):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

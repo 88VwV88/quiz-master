@@ -2,6 +2,7 @@ Flask
 Flask-RESTful
 Flask-SQLAlchemy
 Flask-JWT-Extended
+setuptools
 Flask-CORS
 Flask-Migrate
 SQLAlchemy

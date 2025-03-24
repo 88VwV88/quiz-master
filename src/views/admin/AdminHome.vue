@@ -25,8 +25,7 @@ const subjects = computed(() => store.state.subjects)
       </div>
 
       <div class="d-flex p-0 flex-wrap flex-md-nowrap justify-content-start" style="height: 60dvh;">
-        <SubjectCard @refresh="() => store.dispatch('fetchSubjects')" v-for="(subject, i) in subjects" :subjectKey="i"
-          :key="i" :subject="subject" />
+        <SubjectCard v-for="(subject, i) in subjects" :subjectKey="i" :key="i" :subject="subject" />
       </div>
     </div>
   </div>

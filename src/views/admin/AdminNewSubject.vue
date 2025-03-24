@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router';
 
 const store = useStore();
 const router = useRouter();
-const currentUser = computed(() => store.state.currentUser);
 const subject = reactive({
   name: '',
   description: '',
@@ -19,16 +18,9 @@ function addChapter() {
 };
 const removeChapter = (index) => chapters.splice(index, 1);
 async function submit() {
-  const response = await fetch('http://localhost:5000/subjects', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-    body: JSON.stringify({
-      ...subject,
-      chapters,
-    }),
+  store.dispatch('createSubject', {
+    ...subject,
+    chapters,
   });
   subject.name = '';
   subject.description = '';

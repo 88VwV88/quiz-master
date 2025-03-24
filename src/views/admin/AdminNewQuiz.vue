@@ -5,7 +5,6 @@ import { useStore } from 'vuex'
 
 const store = useStore();
 const router = useRouter();
-const currentUser = computed(() => store.state.currentUser);
 const subjects = computed(() => store.state.subjects);
 
 const subject = ref(null);
@@ -17,29 +16,22 @@ const hours = ref(0);
 const minutes = ref(0);
 const questions = ref([]);
 
-async function submit() {
+async function onSubmit() {
   try {
     if (questions.value.length === 0) {
       alert('Please add at least one question');
       return;
     }
 
-    await fetch('http://127.0.0.1:5000/quizzes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${currentUser.value.token}`,
-      },
-      body: JSON.stringify({
-        name: name.value,
-        remarks: remarks.value,
-        date_of_quiz: new Date(date.value).toISOString().split('T')[0],
-        subject: subject.value.id,
-        chapter: chapter.value.id,
-        hh: hours.value,
-        mm: minutes.value,
-        questions: questions.value,
-      }),
+    store.dispatch('createSubject', {
+      name: name.value,
+      remarks: remarks.value,
+      date_of_quiz: new Date(date.value).toISOString().split('T')[0],
+      subject: subject.value.id,
+      chapter: chapter.value.id,
+      hh: hours.value,
+      mm: minutes.value,
+      questions: questions.value,
     });
 
     questions.value = [];
@@ -80,7 +72,7 @@ function removeQuestion(index) {
   <div class="vw-25">
     <h4 class="display-4 text-center">Add New Quiz</h4>
     <!-- New Quiz Form -->
-    <form @submit.prevent.stop="submit" class="container-md">
+    <form @submit.prevent.stop="onSubmit" class="container-md">
       <div class="form-floating my-2">
         <input type="text" v-model="name" id="name" class="form-control" autocomplete="off" required />
         <label for="name">Title</label>
@@ -88,7 +80,7 @@ function removeQuestion(index) {
 
       <div class="form-floating my-2">
         <textarea style="min-height: 150px;" type="text" v-model="remarks" id="remarks" class="form-control"
-          autocomplete="off" required />
+          autocomplete="off" required></textarea>
         <label for="remarks">Description</label>
       </div>
 

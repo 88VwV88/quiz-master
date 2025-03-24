@@ -13,29 +13,29 @@ export const store = new Vuex.Store({
   },
   actions: {
     async loginUser({ commit }, data) {
-      const currentUser = await fetch('http://localhost:5000/login', {
+      await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(data),
       })
-        .then((response) => response.json())
-        .catch((error) => {
-          console.error('[ERROR]', error)
-        })
+      const { current_user } = await fetch('http://localhost:5000/users/me', {
+        credentials: 'include',
+      }).then((response) => response.json())
+
+      console.log(current_user)
 
       commit('setAuthentication', {
-        currentUser,
+        currentUser: current_user,
         authenticated: true,
       })
     },
     async fetchSubjects({ commit, state }) {
       if (state.currentUser != null) {
         const { subjects } = await fetch('http://localhost:5000/subjects', {
-          headers: {
-            Authorization: `Bearer ${state.currentUser.token}`,
-          },
+          credentials: 'include',
         })
           .then((response) => response.json())
           .catch((error) => {
@@ -48,9 +48,7 @@ export const store = new Vuex.Store({
     async fetchQuizzes({ commit, state }) {
       if (state.currentUser != null) {
         const { quizzes } = await fetch('http://localhost:5000/quizzes', {
-          headers: {
-            Authorization: `Bearer ${state.currentUser.token}`,
-          },
+          credentials: 'include',
         })
           .then((response) => response.json())
           .catch((error) => {
@@ -62,15 +60,50 @@ export const store = new Vuex.Store({
     async fetchScores({ commit, state }) {
       if (state.currentUser != null) {
         const { scores } = await fetch('http://localhost:5000/scores', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${state.currentUser.token}`,
-          },
+          credentials: 'include',
         })
           .then((response) => response.json())
           .catch((error) => console.error(error))
         commit('setScores', scores)
       } else console.warn('USER LOGIN REQUIRED')
+    },
+    async createSubject(_, payload) {
+      await fetch('http://127.0.0.1:5000/subjects', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }).catch((error) => console.error('[ERROR]', error))
+    },
+    async createQuiz(_, payload) {
+      await fetch('http://127.0.0.1:5000/quizzes', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }).catch((error) => console.error('[ERROR]', error))
+    },
+    async deleteQuiz({ dispatch }, quiz_id) {
+      await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+        .then((response) => response.json())
+        .then(() => dispatch('fetchQuizzes'))
+        .catch((error) => console.error(error))
+    },
+    async deleteSubject({ dispatch }, subject_id) {
+      await fetch(`http://localhost:5000/subjects/${subject_id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+        .then((response) => response.json())
+        .then(() => dispatch('fetchSubjects'))
+        .error((error) => console.error('[ERROR]', error))
     },
   },
   mutations: {

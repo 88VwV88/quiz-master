@@ -5,34 +5,7 @@ import { useStore } from 'vuex'
 const store = useStore()
 const currentUser = computed(() => store.state.currentUser)
 
-const emit = defineEmits(['refresh'])
 const { subject, subjectKey } = defineProps(['subject', 'subjectKey'])
-
-const deleteSubject = async () => {
-  const response = await fetch(`http://localhost:5000/subjects/${subject.subject_id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-  }).then((response) => response.json());
-
-  console.log(response.message);
-  emit('refresh');
-};
-
-const editSubject = async () => {
-  const response = await fetch(`http://localhost:5000/subjects/${subject.subject_id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${currentUser.value.token}`,
-    },
-    body: JSON.stringify(subject),
-  }).then((response) => response.json());
-
-  console.log(response.message);
-  emit('refresh');
-};
 </script>
 
 <template>
@@ -42,10 +15,8 @@ const editSubject = async () => {
     <p class="text-dark">{{ subject.description }}</p>
 
     <div class="row px-2 gap-2">
-      <button v-if="currentUser.isAdmin" class="col btn btn-warning" @click=editSubject>
-        <img src="@assets/edit.svg" alt="delete subject">
-      </button>
-      <button v-if="currentUser.isAdmin" class="col btn btn-danger" @click=deleteSubject>
+      <button v-if="currentUser.isAdmin" class="col btn btn-danger"
+        @click="() => { store.dispatch('deleteSubject', subject.subject_id) }">
         <img src="@assets/remove.svg" alt="delete subject">
       </button>
     </div>

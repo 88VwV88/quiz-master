@@ -1,16 +1,14 @@
+import enum
 from datetime import date
 from typing import Set, Literal
 from sqlalchemy import ForeignKey, Enum
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
-import enum
+from sqlalchemy.orm import Mapped, mapped_column, relationship, declarative_base
 
 type UserQualification = Literal["Matriculation",
                                  "Senior Secondary", "Graduation", "Post Graduation", "PhD"]
-
 Base = declarative_base(type_annotation_map={
     UserQualification: Enum(enum.Enum),
 })
-
 
 class User(Base):
     __tablename__ = "user"
@@ -20,7 +18,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     qualification: Mapped[UserQualification] = mapped_column()
     dob: Mapped[date] = mapped_column()
-    admin: Mapped[bool] = mapped_column(default=False)
     scores: Mapped[Set["Score"]] = relationship(
         back_populates="user", cascade="all, delete-orphan")
 

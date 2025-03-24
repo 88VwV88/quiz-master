@@ -1,30 +1,26 @@
 from models import *
-from sqlalchemy import select
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine, select
 from werkzeug.security import generate_password_hash
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-db = SQLAlchemy(model_class=Base)
-migrate = Migrate()
 
+engine = create_engine('sqlite:///quiz-master.db')
+session = scoped_session(sessionmaker(
+    autocommit=False,
+    autoflush=False, 
+    bind=engine))
 
 def init_db(app):
-    db.init_app(app)
-    migrate.init_app(app, db)
+    Base.metadata.create_all(bind=engine)
+
     with app.app_context():
-        db.create_all()
-        if (
-            db.session.execute(select(User).where(
-                User.email == "admin@qm.xyz")).first()
-            is None
-        ):
-            user = User(
-                name="vwv",
+        if not session.execute(select(User).where(User.email=='admin@qm.xyz')).scalar():
+            session.add(User(
                 email="admin@qm.xyz",
-                password=generate_password_hash("admin"),
-                qualification='Senior Secondary',
-                dob=date(2004, 5, 8),
-                admin=True,
-            )
-            db.session.add(user)
-            db.session.commit()
+                name="admin",
+                password = generate_password_hash("admin"),
+                qualification='Senior Secondary', 
+                dob=date(2004, 5, 8)))
+            session.commit()
+    
+    app.teardown_appcontext(lambda _: session.close())
