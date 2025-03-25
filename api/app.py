@@ -33,10 +33,13 @@ def login():
 
     if user := session.execute(select(User).where(User.email==email)).scalar():
         if check_password_hash(user.password, password):
-            response = make_response(dict(name=user.name, isAdmin=user.email=='admin@qm.xyz'))
+            response = make_response({
+                "name": user.name, 
+                "isAdmin": user.email=='admin@qm.xyz'
+            })
+
             access_token = create_access_token(identity=user)
             set_access_cookies(response, access_token)
-            
             return response
         return jsonify(message='invalid credentials'), 401
     return jsonify(message='failed to login user'), 404

@@ -6,6 +6,7 @@ from flask_restful import Resource, Api
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select, delete, update
 from flask_jwt_extended import JWTManager, jwt_required, current_user
+from werkzeug.security import generate_password_hash
 
 
 api = Api()
@@ -31,12 +32,13 @@ class Users(Resource):
 
     def post(self):
         try:
+            user = request.json
             user = User(
-                name=user["name"],
-                email=user["email"],
-                password=user["password"],
-                qualification=user["qualification"],
-                dob=datetime.strptime(user["dob"], "%Y-%m-%d").date(),
+                name=user.get("name"),
+                email=user.get("email"),
+                password=generate_password_hash(user.get("password")),
+                qualification=user.get("qualification"),
+                dob=datetime.strptime(user.get("dob"), "%Y-%m-%d").date(),
             )
             session.add(user)
             session.commit()
@@ -140,7 +142,8 @@ class Quizzes(Resource):
     @jwt_required()
     def post(self):
         try:
-            quiz = request.get_json()
+            print(current_user.email)
+            quiz = request.json
 
             questions = quiz.pop("questions")
             quiz = Quiz(
@@ -160,9 +163,10 @@ class Quizzes(Resource):
             for question in questions:
                 options = question.pop("options")
                 answer = question.pop("answer")
+                print(answer)
                 question = Question(
-                    statement=question["statement"], quiz_id=quiz.id,
-                    correct=0
+                    statement=question.pop("statement"), quiz_id=quiz.id,
+                    correct=answer
                 )
                 session.add(question)
                 session.commit()
@@ -179,7 +183,7 @@ class Quizzes(Resource):
                     Question.id == question.id).values(correct=options[answer].id))
                 session.commit()
             return jsonify(message='quiz created successfully', code=201)
-        except IntegrityError as error:
+        except IntegrityError:
             return jsonify(message='failed to create quiz', code=500)
         except Exception as error:
             return jsonify(message=f'unknown error {error}', code=500)
@@ -218,7 +222,7 @@ class QuizSubmit(Resource):
 
             return jsonify(message='user score updated!', code=201)
         except IntegrityError:
-            return jsonify(message='failed to delete quiz!', code=409)
+            return jsonify(message='failed to delete quiz', code=409)
         except Exception as error:
             return jsonify(message=f'unknown error: {error}', code=500)
 
@@ -227,19 +231,54 @@ class UserScores(Resource):
     @jwt_required()
     def get(self):
         try:
+            print([score.user_score for score in current_user.scores])
             return jsonify({
                 "scores": [
                     {
                         "total": score.total_score,
                         "correct": score.user_score,
                         "date_of_quiz": score.quiz.date_of_quiz,
-                        "id": score.id
+                        "id": score.id,
+                        "subject_id": score.quiz.subject_id,
                     }
                     for score in current_user.scores
                 ]
             })
         except IntegrityError:
-            return jsonify(message='failed to delete quiz!', code=500)
+            return jsonify(message='failed to fetch user scores', code=500)
+        except Exception as error:
+            return jsonify(message=f'unknown error: {error}', code=500)
+
+
+class Statistics(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            by_subject = {}
+            for score in current_user.scores:
+                if score.quiz.subject_id not in by_subject:
+                    by_subject[score.quiz.subject_id] = {
+                        "name": score.quiz.subject.name,
+                        "scores": [],
+                        "average": 0,
+                        "total": 0,
+                        "score": 0,
+                    }
+                by_subject[score.quiz.subject_id]["scores"].append({
+                    "total": score.total_score,
+                    "correct": score.user_score,
+                    "date_of_quiz": score.quiz.date_of_quiz,
+                    "id": score.id,
+                })
+                by_subject[score.quiz.subject_id]["total"] += score.total_score
+                by_subject[score.quiz.subject_id]["score"] += score.user_score
+            for subject in by_subject.values():
+                subject["average"] = subject["score"] / subject["total"]
+            return jsonify({
+                "bySubject": by_subject
+            })
+        except IntegrityError:
+            return jsonify(message='failed to ', code=500)
         except Exception as error:
             return jsonify(message=f'unknown error: {error}', code=500)
 
@@ -249,3 +288,4 @@ api.add_resource(Quizzes, "/quizzes", "/quizzes/<int:quiz_id>")
 api.add_resource(Subjects, "/subjects", "/subjects/<int:subject_id>")
 api.add_resource(QuizSubmit, "/submit")
 api.add_resource(UserScores, "/scores")
+api.add_resource(Statistics, "/stats")

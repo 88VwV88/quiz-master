@@ -19,7 +19,7 @@ function onStart(quiz_id) {
   router.replace(`/user/quiz/take/${quiz_id}`);
 }
 function onView(quiz_id) {
-  router.replace(`/user/quiz/${quiz_id}`);
+  router.replace(`/quiz/${quiz_id}`);
 }
 </script>
 

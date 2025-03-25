@@ -16,21 +16,10 @@ const addChapter = () => {
   })
 };
 const removeChapter = (index) => subject.chapters.splice(index, 1);
-async function onSubmit() {
-  try {
-    await fetch(`http://localhost:5000/subjects/${subject.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${store.state.currentUser.token}`,
-      },
-      body: JSON.stringify(subject),
-    });
-    store.dispatch('fetchSubjects');
-    router.push('/admin');
-  } catch (error) {
-    console.error(`[ERROR] Failed to update subject!`);
-  }
+function onSubmit() {
+  store
+    .dispatch('addSubject', subject)
+    .then(() => router.push('/admin'));
 }
 </script>
 
@@ -40,7 +29,7 @@ async function onSubmit() {
     <form @submit.prevent.stop="onSubmit" class="container-md">
       <div v-for="(attr, key) in Object.keys(subject)" class="form-floating text-start my-2" :key>
         <textarea rows="10" cols="30" v-model="subject[attr]" v-if="attr === 'description'" :id="attr"
-          class="form-control" autocomplete="off" />
+          class="form-control" autocomplete="off"></textarea>
         <input v-else v-model="subject[attr]" type="text" :id="attr" class="form-control" autocomplete="off" />
         <label :for="attr">{{ attr }}</label>
       </div>

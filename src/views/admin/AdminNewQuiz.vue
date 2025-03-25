@@ -23,7 +23,7 @@ async function onSubmit() {
       return;
     }
 
-    store.dispatch('createSubject', {
+    store.dispatch('createQuiz', {
       name: name.value,
       remarks: remarks.value,
       date_of_quiz: new Date(date.value).toISOString().split('T')[0],

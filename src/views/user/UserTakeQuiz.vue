@@ -25,7 +25,7 @@ const timer = ref(setTimeout(() => {
 const hours = ref(quiz.value.hh);
 const minutes = ref(quiz.value.mm);
 setInterval(() => {
-  if (minutes.value === 0) {
+  if (hours.value > 0 && minutes.value === 0) {
     --hours.value;
     minutes.value = 59;
   } else {
@@ -53,9 +53,9 @@ async function onSubmit() {
 
     await fetch('http://localhost:5000/submit', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${currentUser.value.token}`,
       },
       body: JSON.stringify({
         quiz_id: quiz.value.quiz_id,

@@ -65,10 +65,18 @@ export const store = new Vuex.Store({
           .then((response) => response.json())
           .catch((error) => console.error(error))
         commit('setScores', scores)
-      } else console.warn('USER LOGIN REQUIRED')
+      } else console.warn('[WARN] user login required')
+    },
+    async fetchStats({ commit }) {
+      const stats = await fetch('http://localhost:5000/stats', {
+        credentials: 'include',
+      })
+        .then((response) => response.json())
+        .catch((error) => console.error('[ERROR]', error))
+      commit('setStats', stats)
     },
     async createSubject(_, payload) {
-      await fetch('http://127.0.0.1:5000/subjects', {
+      await fetch('http://localhost:5000/subjects', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -78,7 +86,8 @@ export const store = new Vuex.Store({
       }).catch((error) => console.error('[ERROR]', error))
     },
     async createQuiz(_, payload) {
-      await fetch('http://127.0.0.1:5000/quizzes', {
+      console.log(payload)
+      await fetch('http://localhost:5000/quizzes', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -88,7 +97,7 @@ export const store = new Vuex.Store({
       }).catch((error) => console.error('[ERROR]', error))
     },
     async deleteQuiz({ dispatch }, quiz_id) {
-      await fetch(`http://localhost:5000/quizzes/${quiz.quiz_id}`, {
+      await fetch(`http://localhost:5000/quizzes/${quiz_id}`, {
         method: 'DELETE',
         credentials: 'include',
       })
@@ -96,15 +105,27 @@ export const store = new Vuex.Store({
         .then(() => dispatch('fetchQuizzes'))
         .catch((error) => console.error(error))
     },
-    async deleteSubject({ dispatch }, subject_id) {
-      await fetch(`http://localhost:5000/subjects/${subject_id}`, {
-        method: 'DELETE',
+    async updateQuiz(_, payload) {
+      await fetch(`http://localhost:5000/subjects/${payload.id}`, {
+        method: 'PUT',
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       })
-        .then((response) => response.json())
-        .then(() => dispatch('fetchSubjects'))
-        .error((error) => console.error('[ERROR]', error))
+        .then(() => store.dispatch('fetchSubjects'))
+        .catch((error) => console.error('[ERROR]', error))
     },
+  },
+  async deleteSubject({ dispatch }, subject_id) {
+    await fetch(`http://localhost:5000/subjects/${subject_id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+      .then((response) => response.json())
+      .then(() => dispatch('fetchSubjects'))
+      .error((error) => console.error('[ERROR]', error))
   },
   mutations: {
     setAuthentication(state, { currentUser, authenticated }) {
@@ -128,6 +149,9 @@ export const store = new Vuex.Store({
     },
     setScores(state, scores) {
       state.scores = scores
+    },
+    setStats(state, stats) {
+      state.stats = stats
     },
   },
 })

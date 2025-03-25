@@ -8,6 +8,7 @@ const store = useStore();
 const router = useRouter();
 
 const quiz = computed(() => store.state.quizzes.at(route.params.id));
+const currentUser = computed(() => store.state.currentUser);
 
 const attrs = [
   { name: 'Subject', value: quiz.value.subject },
@@ -32,6 +33,7 @@ function startQuiz() {
         {{ attr.value }}
       </span>
     </div>
-    <button class="btn btn-primary mt-3 fs-5 w-100" @click.prevent="startQuiz">start quiz</button>
+    <button v-show="!currentUser.isAdmin" class="btn btn-primary mt-3 fs-5 w-100" @click.prevent="startQuiz">start
+      quiz</button>
   </div>
 </template>
