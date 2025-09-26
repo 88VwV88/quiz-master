@@ -2,6 +2,4 @@
 const store = useStore();
 </script>
 
-<template>
-  Hello, World!
-</template>
+<template>Hello, World!</template>

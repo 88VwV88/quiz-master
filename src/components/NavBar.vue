@@ -1,31 +1,41 @@
 <script setup>
-import { computed } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
-import ScrollWatcher from '@components/ScrollWatcher.vue';
+import { computed } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import ScrollWatcher from "@components/ScrollWatcher.vue";
 
 const store = useStore();
 const router = useRouter();
 const currentUser = computed(() => store.state.currentUser);
 
-const { links, isHidden } = defineProps(['links', 'isHidden']);
+const { links, isHidden } = defineProps(["links", "isHidden"]);
 
 function logout() {
-  store.commit('logoutUser');
-  router.push('/login');
+  store.commit("logoutUser");
+  router.push("/login");
 }
 </script>
 
 <template>
   <header v-show="!isHidden">
     <nav class="bg-dark fixed-top">
-      <span @click.prevent="() => { router.push(''); }" class="route-link ps-4 fs-5 lead">
+      <span
+        @click.prevent="
+          () => {
+            router.push('');
+          }
+        "
+        class="route-link ps-4 fs-5 lead"
+      >
         QuizMaster v2
       </span>
       <div class="space"></div>
       <ul class="navbar-links">
-        <li v-for="link, i in links" :key="i">
-          <span class="route-link col" @click.prevent="() => router.push(link.path)">
+        <li v-for="(link, i) in links" :key="i">
+          <span
+            class="route-link col"
+            @click.prevent="() => router.push(link.path)"
+          >
             {{ link.name }}
           </span>
         </li>

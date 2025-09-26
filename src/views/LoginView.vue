@@ -1,25 +1,26 @@
 <script setup>
-import { useStore } from 'vuex'
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useStore } from "vuex";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const store = useStore()
-const router = useRouter()
-const currentUser = computed(() => store.state.currentUser)
+const store = useStore();
+const router = useRouter();
+const currentUser = computed(() => store.state.currentUser);
 
-const email = ref('')
-const password = ref('')
+const email = ref("");
+const password = ref("");
 
 async function onSubmit() {
   try {
-    await store.dispatch('loginUser', { email: email.value, password: password.value });
+    await store.dispatch("loginUser", {
+      email: email.value,
+      password: password.value,
+    });
 
-    if (currentUser.value.isAdmin)
-      router.replace('/admin');
-    else
-      router.replace('/user');
+    if (currentUser.value.isAdmin) router.replace("/admin");
+    else router.replace("/user");
   } catch (error) {
-    console.error('[ERROR] login failed:', error);
+    console.error("[ERROR] login failed:", error);
   }
 }
 </script>
@@ -32,11 +33,14 @@ async function onSubmit() {
       <label for="email">Email</label>
     </div>
     <div class="form-floating mt-2">
-      <input class="form-control" v-model="password" type="password" id="password" />
+      <input
+        class="form-control"
+        v-model="password"
+        type="password"
+        id="password"
+      />
       <label for="password">Password</label>
     </div>
-    <button class="btn btn-primary mt-3" type="submit">
-      Login
-    </button>
+    <button class="btn btn-primary mt-3" type="submit">Login</button>
   </form>
 </template>

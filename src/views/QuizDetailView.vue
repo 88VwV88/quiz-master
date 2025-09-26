@@ -1,7 +1,7 @@
 <script setup>
-import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useStore } from 'vuex';
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 const route = useRoute();
 const store = useStore();
@@ -11,15 +11,18 @@ const quiz = computed(() => store.state.quizzes.at(route.params.id));
 const currentUser = computed(() => store.state.currentUser);
 
 const attrs = [
-  { name: 'Subject', value: quiz.value.subject },
-  { name: 'Chapter', value: quiz.value.chapter },
-  { name: 'No. of questions', value: quiz.value.questions.length },
-  { name: 'Scheduled Date', value: new Date(quiz.value.date_of_quiz).toISOString().split('T')[0] },
-  { name: 'Duration(hh:mm)', value: `01:00` },
+  { name: "Subject", value: quiz.value.subject },
+  { name: "Chapter", value: quiz.value.chapter },
+  { name: "No. of questions", value: quiz.value.questions.length },
+  {
+    name: "Scheduled Date",
+    value: new Date(quiz.value.date_of_quiz).toISOString().split("T")[0],
+  },
+  { name: "Duration(hh:mm)", value: `01:00` },
 ];
 
 function startQuiz() {
-  store.commit('startQuiz', quiz.value.quiz_id);
+  store.commit("startQuiz", quiz.value.quiz_id);
   router.replace(`/user/quiz/take/${quiz.value.quiz_id}`);
 }
 </script>
@@ -33,7 +36,12 @@ function startQuiz() {
         {{ attr.value }}
       </span>
     </div>
-    <button v-show="!currentUser.isAdmin" class="btn btn-primary mt-3 fs-5 w-100" @click.prevent="startQuiz">start
-      quiz</button>
+    <button
+      v-show="!currentUser.isAdmin"
+      class="btn btn-primary mt-3 fs-5 w-100"
+      @click.prevent="startQuiz"
+    >
+      start quiz
+    </button>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup>
-const emit = defineEmits(['delete', 'update', 'start', 'view']);
-const { quiz, admin } = defineProps(['quiz', 'admin']);
+const emit = defineEmits(["delete", "update", "start", "view"]);
+const { quiz, admin } = defineProps(["quiz", "admin"]);
 </script>
 
 <template>
@@ -11,14 +11,26 @@ const { quiz, admin } = defineProps(['quiz', 'admin']);
       <hr />
       <p class="card-text text-white">{{ quiz.remarks }}</p>
       <div v-if="admin" class="gap-2 p-2">
-        <button v-show="admin" class="col btn btn-warning" @click.prevent="() => emit('update', quiz)">
+        <button
+          v-show="admin"
+          class="col btn btn-warning"
+          @click.prevent="() => emit('update', quiz)"
+        >
           <img src="@/assets/edit.svg" alt="edit quiz" />
         </button>
-        <button v-show="admin" class="col btn btn-danger" @click.prevent="() => emit('delete', quiz)">
+        <button
+          v-show="admin"
+          class="col btn btn-danger"
+          @click.prevent="() => emit('delete', quiz)"
+        >
           <img src="@/assets/remove.svg" alt="remove quiz" />
         </button>
       </div>
-      <button v-else @click.prevent.stop="emit('start', quiz.quiz_id)" class="z-10 mt-3 btn btn-primary">
+      <button
+        v-else
+        @click.prevent.stop="emit('start', quiz.quiz_id)"
+        class="z-10 mt-3 btn btn-primary"
+      >
         Start Quiz
       </button>
     </div>

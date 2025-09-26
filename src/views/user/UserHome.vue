@@ -1,13 +1,13 @@
 <script setup>
-import QuizCard from '@components/QuizCard.vue'
+import QuizCard from "@components/QuizCard.vue";
 
-import { computed } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+import { computed } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
-const store = useStore()
-const router = useRouter()
-await store.dispatch('fetchQuizzes')
+const store = useStore();
+const router = useRouter();
+await store.dispatch("fetchQuizzes");
 
 const quizzes = computed(() => store.state.quizzes);
 const upcommingCount = computed(() => {
@@ -15,7 +15,7 @@ const upcommingCount = computed(() => {
 });
 
 function onStart(quiz_id) {
-  store.commit('startQuiz', quiz_id);
+  store.commit("startQuiz", quiz_id);
   router.replace(`/user/quiz/take/${quiz_id}`);
 }
 function onView(quiz_id) {
@@ -28,11 +28,19 @@ function onView(quiz_id) {
     <h1 class="display-6 text-center">Upcomming Quizzes</h1>
     <hr />
     <div v-if="quizzes && upcommingCount != 0" class="container-md">
-      <QuizCard v-for="(quiz, key) in quizzes" v-show="!quiz.done" :quiz="quiz" :key @view="() => onView(key)"
-        @start="onStart" />
+      <QuizCard
+        v-for="(quiz, key) in quizzes"
+        v-show="!quiz.done"
+        :quiz="quiz"
+        :key
+        @view="() => onView(key)"
+        @start="onStart"
+      />
     </div>
     <div v-else>
-      <h1 class="display-6 text-center rounded bg-dark p-2">No Quizzes Available</h1>
+      <h1 class="display-6 text-center rounded bg-dark p-2">
+        No Quizzes Available
+      </h1>
     </div>
   </div>
 </template>
